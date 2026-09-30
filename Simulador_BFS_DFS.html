@@ -1,0 +1,1206 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Simulador local de BFS, DFS y Dijkstra para grafos propios: cada instrucción, estructuras, visitados, distancias y caminos mínimos.">
+  <meta name="theme-color" content="#12345b">
+  <title>Simulador de grafos · BFS, DFS y Dijkstra</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2312345b'/%3E%3Cpath d='M8 8h16M8 16h16M8 24h16' stroke='%23ffffff' stroke-width='3'/%3E%3C/svg%3E">
+  <style>
+:root { color-scheme: light; --ink:#142a43; --muted:#516479; --blue:#185fbb; --blue-soft:#eaf2ff; --green:#166347; --green-soft:#e8f5ee; --amber:#a35d06; --amber-soft:#fff0ce; --border:#d7e1ed; --paper:#fff; --background:#f2f6fc; font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; font-size:16px; color:var(--ink); background:var(--background); }
+* { box-sizing:border-box; }
+[hidden] { display:none !important; }
+body { margin:0; }
+code { font-family:Consolas,"SFMono-Regular",monospace; }
+button,input,textarea,select { font:inherit; }
+button:focus-visible,summary:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible { outline:3px solid #e69519; outline-offset:3px; }
+.shell { max-width:1480px; margin:auto; padding:28px 32px; }
+.header { display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap; margin-bottom:18px; }
+.eyebrow { margin:0 0 6px; color:var(--muted); font-size:.875rem; }
+h1 { margin:0; font-size:clamp(1.8rem,3vw,2.5rem); letter-spacing:-.035em; }
+.subtitle { margin:7px 0 0; }
+.settings,.editor-actions,.controls,.toolbar { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+.settings label,.editor-fields label,.example-label { display:grid; gap:6px; font-size:.875rem; font-weight:600; }
+select,textarea { border:1px solid var(--border); background:var(--paper); color:var(--ink); border-radius:7px; padding:10px 11px; min-height:44px; max-width:100%; }
+.settings select { max-width:260px; }
+.editor { background:var(--paper); border:1px solid var(--border); border-radius:10px; margin-bottom:18px; padding:0 18px; }
+summary { cursor:pointer; font-weight:600; padding:15px 0; }
+.editor form { padding-bottom:15px; }
+.editor-fields { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:18px; }
+textarea { width:100%; resize:vertical; font:1rem Consolas,monospace; line-height:1.5; }
+.help { color:var(--muted); font-size:.875rem; line-height:1.5; font-weight:400; }
+.editor-actions { margin-top:16px; }
+.checkbox-label { display:flex; align-items:center; gap:9px; min-height:44px; }
+.checkbox-label input { width:19px; height:19px; }
+.example-label { grid-template-columns:auto minmax(0,1fr); align-items:center; }
+.editor-status { color:var(--muted); margin:8px 0 0; font-size:.875rem; }
+.error { color:#a1222d; background:#fff0f1; padding:12px; border-radius:6px; line-height:1.5; }
+.toolbar { justify-content:space-between; margin-bottom:17px; }
+.button { min-height:44px; padding:10px 14px; border-radius:7px; border:1px solid transparent; cursor:pointer; font-weight:600; }
+.primary { background:var(--blue); color:#fff; }
+.primary:hover:not(:disabled) { background:#10498e; }
+.secondary { background:var(--paper); color:var(--ink); border-color:var(--border); }
+.secondary:hover:not(:disabled) { border-color:var(--blue); }
+.quiet { background:transparent; color:var(--muted); }
+.quiet:hover:not(:disabled) { background:#e4ecf7; }
+.button:disabled { opacity:.45; cursor:default; }
+.execution { display:grid; grid-template-columns:auto minmax(0,1fr) auto; align-items:center; gap:20px; border:1px solid var(--border); border-left:5px solid var(--blue); border-radius:12px; padding:17px 20px; background:var(--paper); margin-bottom:20px; }
+.execution.finished { border-color:#78b89c; border-left-color:var(--green); background:#f4fbf7; box-shadow:0 0 0 3px rgba(22,99,71,.08); }
+.execution.finished .step-counter,.execution.finished h2 { color:var(--green); }
+.completion-banner { grid-column:1 / -1; display:grid; grid-template-columns:auto minmax(0,1fr); gap:12px; align-items:center; padding:13px 15px; color:#0e5139; background:#dff3e8; border:2px solid #68ad8e; border-radius:8px; }
+.completion-mark { display:grid; place-items:center; width:34px; height:34px; color:#fff; background:var(--green); border-radius:50%; font-size:1.25rem; font-weight:700; }
+.completion-banner strong { display:block; margin-bottom:2px; font-size:1rem; letter-spacing:.02em; }
+.completion-banner span:last-child { line-height:1.45; }
+.step-counter { color:var(--blue); font-weight:600; font-variant-numeric:tabular-nums; white-space:nowrap; }
+.execution h2 { font-size:1.05rem; margin:0 0 4px; overflow-wrap:anywhere; }
+.execution p { margin:0; line-height:1.5; overflow-wrap:anywhere; }
+.variables { display:flex; gap:16px; }
+.variables div { display:grid; gap:4px; min-width:45px; max-width:160px; }
+.variables span { color:var(--muted); font-size:.875rem; }
+.variables code { overflow-wrap:anywhere; font-size:1.05rem; font-weight:600; }
+.workspace { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:22px; align-items:start; }
+.left-column,.right-column { display:grid; gap:15px; min-width:0; }
+.panel { padding:17px 20px; background:var(--paper); border:1px solid var(--border); border-radius:12px; min-width:0; }
+.panel-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+.panel-heading h2 { font-size:1rem; margin:0; font-weight:600; }
+.panel-heading>span { font-size:.875rem; font-variant-numeric:tabular-nums; }
+.panel>p.help { margin:7px 0 12px; }
+.code-panel { padding:20px 0; background:#102840; color:#e5edf8; border-radius:13px; min-width:0; }
+.code-panel .panel-heading { padding:0 22px 15px; border-bottom:1px solid #385069; }
+.code-panel .panel-heading span { color:#bdcde0; }
+.source-code { font:.875rem Consolas,"SFMono-Regular",monospace; padding:12px 12px 12px 52px; margin:0; }
+.source-code li { white-space:pre-wrap; overflow-wrap:anywhere; padding:4px 8px; border-radius:4px; line-height:1.55; }
+.source-code li::marker { color:#99b0c9; }
+.source-code li.current { color:#fff; background:#214f7b; box-shadow:-3px 0 0 #6fc8ff; }
+.source-code li.current::marker { color:#8ddbff; font-weight:700; }
+.code-footnote { padding:12px 22px 0; border-top:1px solid #385069; color:#c1d1e3; font-size:.875rem; line-height:1.6; }
+.tokens { display:flex; gap:7px; flex-wrap:wrap; margin-top:12px; min-height:34px; }
+.token { display:inline-flex; align-items:center; gap:7px; padding:7px 10px; border-radius:6px; color:var(--green); background:var(--green-soft); font-family:Consolas,monospace; font-weight:600; overflow-wrap:anywhere; max-width:100%; }
+.token.new { outline:2px solid var(--green); outline-offset:1px; }
+.token.order,.token.neighbor { color:var(--blue); background:var(--blue-soft); }
+.token.order.new { outline-color:var(--blue); }
+.token.neighbor.selected { color:#fff; background:var(--blue); }
+.token small { font-size:.75rem; font-weight:400; }
+.empty { color:var(--muted); padding:6px 0; }
+.memory { display:grid; gap:7px; }
+.memory.queue { display:flex; flex-wrap:wrap; gap:8px; }
+.memory-entry { padding:9px 12px; background:#f3f7fc; border:1px solid var(--border); border-radius:6px; overflow-wrap:anywhere; }
+.memory-entry:first-child { border-color:var(--blue); background:var(--blue-soft); }
+.frame { padding:10px 12px; border:1px solid var(--border); border-radius:7px; background:#f5f8fc; }
+.frame.active { padding:9px 11px; border:2px solid var(--blue); background:var(--blue-soft); }
+.frame-heading { display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+.frame-heading code { font-size:1rem; font-weight:600; overflow-wrap:anywhere; }
+.frame-heading span,.frame-state { font-size:.875rem; }
+.frame-state { margin-top:5px; overflow-wrap:anywhere; }
+.frame-neighbors { display:flex; align-items:center; flex-wrap:wrap; gap:5px; margin-top:6px; font-size:.875rem; }
+.frame-neighbors code { padding:2px 5px; background:#e3eaf4; border-radius:3px; overflow-wrap:anywhere; }
+.frame-neighbors code.selected { color:#fff; background:var(--blue); }
+.call-picker { display:grid; gap:6px; margin-top:12px; font-size:.875rem; font-weight:600; }
+.call-picker select { width:100%; min-width:0; }
+.call-signature { display:block; padding:10px 12px; color:var(--blue); background:var(--blue-soft); border-radius:6px; overflow-wrap:anywhere; line-height:1.5; font-size:.875rem; }
+.pending-call { padding:10px 12px; background:var(--amber-soft); color:var(--amber); border-left:3px solid var(--amber); border-radius:4px; font-size:.875rem; line-height:1.5; overflow-wrap:anywhere; }
+.call-table { margin-top:12px; font-size:.875rem; }
+.call-table th,.call-table td { padding:9px 6px; }
+.call-table th:first-child { width:30%; }
+.call-table code { display:block; line-height:1.55; overflow-wrap:anywhere; }
+.call-table .parameter-type,.call-table .parameter-reference { display:block; margin-top:3px; color:var(--muted); font-size:.8125rem; overflow-wrap:anywhere; }
+.call-table .parameter-reference { color:var(--green); }
+.parameters-panel #parameters-note { margin-bottom:0; }
+.locals { border-top:1px solid var(--border); margin-top:12px; }
+.locals summary { font-size:.875rem; }
+.call-locals { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,2fr); gap:8px 12px; margin:0; font-size:.875rem; }
+.call-locals dt,.call-locals dd { margin:0; overflow-wrap:anywhere; line-height:1.55; }
+.call-locals dt { color:var(--muted); }
+.call-locals code { white-space:normal; }
+.level-row { display:grid; grid-template-columns:75px minmax(0,1fr); align-items:start; gap:10px; padding-top:9px; }
+.level-row>span { padding-top:7px; font-weight:600; font-size:.875rem; }
+.level-row .tokens { margin-top:0; }
+.distance-table { margin-top:12px; font-size:.875rem; }
+.distance-table th,.distance-table td { padding:9px 7px; }
+.distance-table tr.current-row { background:var(--amber-soft); }
+.distance-table tr.neighbor-row { background:var(--blue-soft); }
+.distance-table tr.fixed-row td:first-child { color:var(--green); font-weight:600; }
+.distance-value { font-family:Consolas,"SFMono-Regular",monospace; font-weight:600; }
+.path-results { margin-top:12px; }
+.path-results table { font-size:.875rem; }
+.path-results code { white-space:normal; }
+.result { border-color:#9acbb5; }
+.result p { line-height:1.6; overflow-wrap:anywhere; }
+#graph-drawing { width:100%; margin-top:10px; }
+#graph-drawing svg { display:block; width:100%; }
+.legend { display:flex; gap:12px; flex-wrap:wrap; font-size:.875rem; margin-top:8px; }
+.legend span { display:flex; align-items:center; gap:6px; }
+.legend i { display:inline-block; width:12px; height:12px; border-radius:50%; }
+.legend-unseen { background:#e5ebf3; }
+.legend-visited { background:#bce3ce; }
+.legend-active { background:#f5c46d; }
+.legend-neighbor { background:#9fc5fa; }
+.edges-legend i { width:24px; height:0; border-radius:0; border-top:3px solid; }
+.edges-legend .legend-tree { border-color:var(--green); }
+.edges-legend .legend-examined { border-color:var(--blue); border-top-style:dashed; }
+.edges-legend .legend-return { border-color:var(--amber); border-top-style:dashed; }
+.tree-edges .token small { font-family:system-ui,sans-serif; }
+.adjacency { margin-top:20px; border-top:1px solid var(--border); }
+table { border-collapse:collapse; width:100%; table-layout:fixed; }
+th,td { padding:11px 12px; text-align:left; border-bottom:1px solid var(--border); overflow-wrap:anywhere; vertical-align:top; }
+th { font-weight:600; }
+footer { margin-top:15px; font-size:.875rem; line-height:1.6; color:var(--muted); }
+@media(max-width:1050px) { .execution { grid-template-columns:auto minmax(0,1fr); } .variables { grid-column:2; } }
+@media(max-width:780px) { .shell { padding:20px 16px; } .workspace,.editor-fields { grid-template-columns:minmax(0,1fr); } .settings { width:100%; } .settings label { flex:1; min-width:0; } .settings select { width:100%; } .execution { gap:12px; padding:14px; } .step-counter,.variables,.execution>div { grid-column:1 / -1; } .source-code { padding-left:44px; } .panel { padding:16px; } .controls { gap:7px; } .button { padding:10px 12px; } .example-label { width:100%; } th,td { padding:10px 5px; } }
+@media(max-width:780px) { .workspace .left-column,.workspace .right-column { display:contents; } .workspace .panel,.workspace .code-panel { order:3; } .workspace .code-panel { order:1; } .workspace .parameters-panel { order:2; } }
+
+  </style>
+
+
+</head>
+<body>
+<main class="shell">
+  <header class="header">
+    <div><p class="eyebrow">Algoritmos y Estructuras de Datos III</p><h1>Simulador de grafos</h1><p class="subtitle">BFS, DFS recursivo y Dijkstra · instrucción por instrucción</p></div>
+    <div class="settings">
+      <label>Algoritmo<select id="algorithm"><option value="bfs">BFS · cola</option><option value="recursive">DFS · recursivo</option><option value="dijkstra">Dijkstra · menor costo</option></select></label>
+      <label>Origen<select id="origin"></select></label>
+    </div>
+  </header>
+
+  <details class="editor" id="graph-editor">
+    <summary>Editar o cargar un grafo propio</summary>
+    <form id="graph-form">
+      <div class="editor-fields">
+        <label>Vértices<textarea id="vertices-input" rows="7" maxlength="200000" spellcheck="false" aria-describedby="vertices-help"></textarea><span id="vertices-help" class="help">Uno por línea: <code>A</code> o <code>A;Etiqueta</code>.</span></label>
+        <label>Aristas<textarea id="edges-input" rows="7" maxlength="200000" spellcheck="false" aria-describedby="edges-help"></textarea><span id="edges-help" class="help">Una por línea: <code>A;B</code> o <code>A;B;12</code>. No repitas la inversa en un grafo no dirigido.</span></label>
+      </div>
+      <div class="editor-actions">
+        <label class="checkbox-label"><input type="checkbox" id="directed"> Grafo dirigido</label>
+        <button type="submit" class="button primary">Aplicar grafo</button>
+        <label class="example-label">Ejemplo<select id="example"><option value="professor">Dijkstra del profesor · Q→Z</option><option value="health">Centro de salud</option><option value="small">Árbol A–E</option><option value="directed">Dirigido con ciclo y aislado</option></select></label>
+        <button id="load-example" type="button" class="button secondary">Cargar ejemplo</button>
+      </div>
+      <p class="help">Límite didáctico: 100 vértices y 500 aristas. Se admiten bucles y pesos finitos, pero no aristas paralelas. BFS y DFS ignoran los pesos; Dijkstra requiere que todas las aristas tengan peso numérico mayor o igual que cero. Se omiten líneas vacías y comentarios que comienzan con <code>#</code>.</p>
+      <p id="editor-status" class="editor-status" aria-live="polite"></p>
+      <p id="editor-error" class="error" role="alert" hidden></p>
+    </form>
+  </details>
+
+  <div class="toolbar">
+    <div class="controls" aria-label="Avance de la simulación">
+      <button id="previous" type="button" class="button secondary" disabled>Anterior</button>
+      <button id="next" type="button" class="button primary">Siguiente paso</button>
+      <button id="restart" type="button" class="button quiet" disabled>Inicio</button>
+      <button id="finish" type="button" class="button quiet">Ver resultado</button>
+    </div>
+    <span id="graph-meta" class="help"></span>
+  </div>
+
+  <section class="execution" aria-label="Instrucción actual">
+    <span id="step-counter" class="step-counter">Inicio</span>
+    <div aria-live="polite" aria-atomic="true"><h2 id="event-title">Listo para comenzar</h2><p id="event-detail"></p></div>
+    <div class="variables"><div><span>actual</span><code id="actual">—</code></div><div><span>vecino</span><code id="neighbor">—</code></div></div>
+    <div id="completion-banner" class="completion-banner" role="status" aria-live="assertive" hidden><span class="completion-mark">✓</span><span><strong>SIMULACIÓN FINALIZADA</strong><span id="completion-summary"></span></span></div>
+  </section>
+
+  <div class="workspace">
+    <div class="left-column">
+      <section class="code-panel"><div class="panel-heading"><h2 id="algorithm-title">BFS</h2><span>Java de referencia</span></div><ol id="source-code" class="source-code"></ol><div class="code-footnote" id="code-footnote">El navegador ejecuta una simulación JavaScript equivalente. <code>obtenerVecinos</code> entrega vecinos ordenados por etiqueta; ante empate, por id.</div></section>
+      <section class="panel"><div class="panel-heading"><h2 id="neighbors-title">Vecinos del for</h2></div><div id="local-neighbors" class="tokens"></div></section>
+      <section class="panel graph-panel"><div class="panel-heading"><h2 id="graph-heading">Grafo cargado y árbol de descubrimiento</h2></div><div id="graph-drawing"></div><div class="legend"><span><i class="legend-unseen"></i>Sin visitar</span><span><i class="legend-visited"></i><span id="visited-legend-label">Visitado</span></span><span><i class="legend-active"></i>Actual</span><span><i class="legend-neighbor"></i>Vecino</span></div><div class="legend edges-legend"><span><i class="legend-tree"></i><span id="tree-legend-label">Arista del árbol</span></span><span><i class="legend-examined"></i>Conexión examinada</span><span id="return-legend"><i class="legend-return"></i>Retorno recursivo</span></div><p class="help" id="graph-help">Las flechas verdes indican quién descubre a quién; no convierten el grafo no dirigido en dirigido. La conexión examinada aparece azul discontinua y el retorno naranja. Examinar o retornar no agrega aristas al árbol. Los pesos se conservan, pero BFS y DFS los ignoran.</p></section>
+    </div>
+    <div class="right-column">
+      <section class="panel parameters-panel" aria-labelledby="parameters-title">
+        <div class="panel-heading"><h2 id="parameters-title">Parámetros por llamada</h2><span id="call-counter"></span></div>
+        <label class="call-picker" id="call-picker-label">Ver llamada<select id="call-picker" aria-describedby="call-status"></select></label>
+        <p id="call-status" class="help"></p>
+        <code id="call-signature" class="call-signature"></code>
+        <p id="pending-call" class="pending-call" hidden></p>
+        <table class="call-table"><thead><tr><th scope="col">Parámetro y tipo</th><th scope="col">Al entrar</th><th scope="col">En este paso</th></tr></thead><tbody id="call-parameters"></tbody></table>
+        <p id="parameters-note" class="help"></p>
+        <details class="locals" id="locals-details"><summary>Variables locales (no son parámetros)</summary><dl id="call-locals" class="call-locals"></dl></details>
+      </section>
+      <section class="panel"><div class="panel-heading"><h2 id="memory-title">Cola FIFO</h2><span id="memory-count"></span></div><p id="memory-note" class="help"></p><div id="memory" class="memory"></div></section>
+      <section class="panel"><div class="panel-heading"><h2 id="visited-title">Visitados</h2><span><code id="visited-type">Set&lt;String&gt;</code></span></div><p id="visited-note" class="help"></p><div id="visited" class="tokens"></div></section>
+      <section class="panel"><div class="panel-heading"><h2 id="order-title">Recorrido</h2><span><code id="order-type">List&lt;String&gt;</code></span></div><p class="help" id="order-help">Orden de procesamiento en BFS; primera visita en DFS. No necesariamente representa un itinerario.</p><div id="order" class="tokens"></div></section>
+      <section class="panel"><div class="panel-heading"><h2 id="tree-title">Aristas del recorrido</h2><span id="tree-count">0 aristas</span></div><p class="help" id="tree-help">Árbol de descubrimiento: cada vértice nuevo tiene un padre. El origen no tiene padre. La lista acumula solo las conexiones aceptadas.</p><div id="tree-edges" class="tokens tree-edges"></div></section>
+      <section class="panel" id="levels-panel"><div class="panel-heading"><h2>Niveles de BFS</h2><span>Conexiones mínimas</span></div><div id="levels"></div></section>
+      <section class="panel" id="distances-panel" hidden><div class="panel-heading"><h2>Distancias y predecesores</h2><span><code>∞</code> = aún no alcanzado</span></div><p id="relaxation-note" class="help">La distancia es tentativa hasta que el vértice se fija como visitado.</p><div class="table-wrap"><table class="distance-table"><thead><tr><th>Vértice</th><th>Distancia</th><th>Predecesor</th><th>Estado</th></tr></thead><tbody id="distances-body"></tbody></table></div></section>
+      <section class="panel result" id="result-panel" hidden><div class="panel-heading"><h2>Resultado desde el origen</h2></div><p id="result-text"></p><p id="unreachable-text"></p><div id="paths-result" class="path-results" hidden></div></section>
+    </div>
+  </div>
+
+  <details class="adjacency"><summary>Lista de adyacencia y etiquetas completas</summary><div class="table-wrap"><table><thead><tr><th>Id y etiqueta</th><th>Vecinos, en orden</th></tr></thead><tbody id="adjacency-body"></tbody></table></div></details>
+  <footer id="algorithm-note"></footer>
+  <noscript>Habilitá JavaScript para utilizar el simulador.</noscript>
+</main>
+<script>
+/** Motor independiente de la interfaz: validación de grafos y trazas didácticas. */
+(function (root, factory) {
+  const api = factory();
+  if (typeof module === 'object' && module.exports) module.exports = api;
+  else root.GraphSimulatorCore = api;
+})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+  'use strict';
+  const LIMITS = Object.freeze({vertices: 100, edges: 500, steps: 12000, inputCharacters: 200000});
+  const compareText = (a, b) => a < b ? -1 : a > b ? 1 : 0;
+  const r = (tag, text) => ({tag, text});
+  const PROGRAMS = {
+    bfs: {
+      title: 'BFS · recorrido en anchura', memory: 'Cola FIFO',
+      lines: [
+        r('signature', 'public ResultadoRecorrido bfs(String origen) {'),
+        r('sets', '    Set<String> visitados = new HashSet<>();'),
+        r('queue', '    Queue<String> cola = new ArrayDeque<>();'),
+        r('list', '    List<String> recorrido = new ArrayList<>();'),
+        r('map', '    Map<String, Integer> nivel = new HashMap<>();'),
+        r('edges', '    List<AristaRecorrido> aristas = new ArrayList<>();'),
+        r('markOrigin', '    visitados.add(origen);'),
+        r('levelOrigin', '    nivel.put(origen, 0);'),
+        r('enqueueOrigin', '    cola.add(origen);'),
+        r('while', '    while (!cola.isEmpty()) {'),
+        r('pop', '        String actual = cola.remove();'),
+        r('append', '        recorrido.add(actual);'),
+        r('for', '        for (String vecino : obtenerVecinos(actual)) {'),
+        r('condition', '            if (!visitados.contains(vecino)) {'),
+        r('mark', '                visitados.add(vecino);'),
+        r('edge', '                aristas.add(new AristaRecorrido(actual, vecino));'),
+        r('level', '                nivel.put(vecino, nivel.get(actual) + 1);'),
+        r('enqueue', '                cola.add(vecino);'),
+        r('endIf', '            }'),
+        r('endFor', '        }'),
+        r('endWhile', '    }'),
+        r('done', '    return new ResultadoRecorrido(recorrido, aristas);'),
+        r('endMethod', '}')
+      ]
+    },
+    recursive: {
+      title: 'DFS · recursivo', memory: 'Pila de llamadas',
+      lines: [
+        r('signature', 'private void dfs('),
+        r('parameter', '    String actual,'),
+        r('setParameter', '    Set<String> visitados,'),
+        r('listParameter', '    List<String> recorrido,'),
+        r('entry', '    List<AristaRecorrido> aristas) {'),
+        r('mark', '    visitados.add(actual);'),
+        r('append', '    recorrido.add(actual);'),
+        r('for', '    for (String vecino : obtenerVecinos(actual)) {'),
+        r('condition', '        if (!visitados.contains(vecino)) {'),
+        r('edge', '            aristas.add(new AristaRecorrido(actual, vecino));'),
+        r('call', '            dfs(vecino, visitados, recorrido, aristas);'),
+        r('endIf', '        }'),
+        r('endFor', '    }'),
+        r('return', '}')
+      ]
+    },
+    dijkstra: {
+      title: 'Dijkstra · camino de menor costo', memory: 'Pendientes por distancia',
+      lines: [
+        r('signature', 'public ResultadoDijkstra dijkstra(String origen) {'),
+        r('maps', '    Map<String, Integer> distancias = new LinkedHashMap<>();'),
+        r('predecessors', '    Map<String, String> predecesores = new HashMap<>();'),
+        r('sets', '    Set<String> visitados = new LinkedHashSet<>();'),
+        r('initialize', '    for (String vertice : obtenerVertices()) distancias.put(vertice, INFINITO);'),
+        r('setOrigin', '    distancias.put(origen, 0);'),
+        r('while', '    while (visitados.size() < cantidadVertices()) {'),
+        r('select', '        String actual = menorNoVisitado(distancias, visitados);'),
+        r('unreachable', '        if (actual == null) break;'),
+        r('mark', '        visitados.add(actual);'),
+        r('for', '        for (String vecino : obtenerVecinos(actual)) {'),
+        r('condition', '            if (!visitados.contains(vecino)) {'),
+        r('alternative', '                int alternativa = distancias.get(actual) + obtenerPeso(actual, vecino);'),
+        r('improve', '                if (alternativa < distancias.get(vecino)) {'),
+        r('updateDistance', '                    distancias.put(vecino, alternativa);'),
+        r('updatePredecessor', '                    predecesores.put(vecino, actual);'),
+        r('endImprove', '                }'),
+        r('endCondition', '            }'),
+        r('endFor', '        }'),
+        r('endWhile', '    }'),
+        r('done', '    return new ResultadoDijkstra(origen, distancias, predecesores);'),
+        r('endMethod', '}')
+      ]
+    }
+  };
+  const EXAMPLES = {
+    professor: {
+      vertices: 'Q\nK\nW\nA\nM\nZ',
+      edges: 'Q;K;5\nQ;W;1\nK;W;2\nK;A;2\nK;Z;7\nK;M;6\nW;M;3\nA;Z;5\nM;Z;6',
+      directed: false, origin: 'Q', algorithm: 'dijkstra'
+    },
+    health: {
+      vertices: 'CC;Centro Central\nCN;Consultorio Norte\nCS;Consultorio Sur\nDI;Diagnóstico por Imágenes\nG;Guardia\nL;Laboratorio',
+      edges: 'CC;CN;12\nCC;L;5\nCC;G;4\nCN;L;8\nCN;DI;15\nL;DI;7\nL;CS;10\nDI;CS;6\nG;CS;9',
+      directed: false, origin: 'CC'
+    },
+    small: {vertices: 'A\nB\nC\nD\nE', edges: 'A;B;1\nA;C;1\nB;D;1\nB;E;1', directed: false, origin: 'A'},
+    directed: {vertices: 'A\nB\nC\nD\nE', edges: 'A;B;2\nB;C;1\nC;A;4\nC;D;3', directed: true, origin: 'A'}
+  };
+  function inputLines(text, name) {
+    if (typeof text !== 'string' || text.length > LIMITS.inputCharacters) throw new Error(name + ': entrada inválida o demasiado extensa.');
+    return text.split(/\r?\n/).map((text, i) => ({text: text.trim(), line: i + 1})).filter(row => row.text && !row.text.startsWith('#'));
+  }
+  /** Un vértice por línea: id;etiqueta. Una arista por línea: origen;destino;peso. */
+  function parseGraph(verticesText, edgesText, directed = false) {
+    if (typeof directed !== 'boolean') throw new Error('El tipo de grafo debe ser dirigido o no dirigido.');
+    const vertices = new Map();
+    for (const row of inputLines(verticesText, 'Vértices')) {
+      const fields = row.text.split(';').map(s => s.trim());
+      const id = fields[0];
+      const label = fields.length === 1 ? id : fields[1];
+      if (fields.length > 2 || !id || !label) throw new Error('Vértices, línea ' + row.line + ': usá id o id;etiqueta.');
+      if (id.length > 60 || label.length > 120) throw new Error('Vértices, línea ' + row.line + ': id máximo 60 caracteres; etiqueta máximo 120.');
+      if (vertices.has(id)) throw new Error('Vértice repetido: ' + id + '.');
+      vertices.set(id, {id, label});
+      if (vertices.size > LIMITS.vertices) throw new Error('Máximo didáctico: ' + LIMITS.vertices + ' vértices.');
+    }
+    if (!vertices.size) throw new Error('Agregá al menos un vértice.');
+    const adjacency = new Map([...vertices.keys()].map(id => [id, new Map()]));
+    const edges = [];
+    const unique = new Set();
+    for (const row of inputLines(edgesText, 'Aristas')) {
+      const fields = row.text.split(';').map(s => s.trim());
+      if (fields.length < 2 || fields.length > 3 || !fields[0] || !fields[1]) throw new Error('Aristas, línea ' + row.line + ': usá origen;destino o origen;destino;peso.');
+      const [from, to] = fields;
+      if (!vertices.has(from) || !vertices.has(to)) throw new Error('Aristas, línea ' + row.line + ': ambos extremos deben estar declarados como vértices.');
+      const weight = fields.length === 3 && fields[2] !== '' ? Number(fields[2]) : null;
+      if (weight !== null && !Number.isFinite(weight)) throw new Error('Aristas, línea ' + row.line + ': el peso debe ser un número finito.');
+      const key = JSON.stringify(directed ? [from, to] : [from, to].sort(compareText));
+      if (unique.has(key)) throw new Error('Conexión repetida en línea ' + row.line + ': ' + from + (directed ? ' → ' : ' — ') + to + '.');
+      unique.add(key);
+      edges.push({from, to, weight});
+      adjacency.get(from).set(to, weight);
+      if (!directed) adjacency.get(to).set(from, weight);
+      if (edges.length > LIMITS.edges) throw new Error('Máximo didáctico: ' + LIMITS.edges + ' aristas.');
+    }
+    const comparator = (a, b) => compareText(vertices.get(a).label, vertices.get(b).label) || compareText(a, b);
+    const ids = [...vertices.keys()].sort(comparator);
+    const ordered = new Map(ids.map(id => [id, [...adjacency.get(id).keys()].sort(comparator)]));
+    return {vertices, edges, adjacency, directed, ids, ordered};
+  }
+  /** Cada estado es una copia: volver hacia atrás no altera estados previos. */
+  function createTrace(graph, algorithm, origin) {
+    if (!Object.prototype.hasOwnProperty.call(PROGRAMS, algorithm)) throw new Error('Algoritmo desconocido.');
+    if (!graph.vertices.has(origin)) throw new Error('El origen no pertenece al grafo.');
+    if (algorithm === 'dijkstra') {
+      const missing = graph.edges.find(edge => edge.weight === null);
+      if (missing) throw new Error('Dijkstra requiere un peso en cada arista. Falta en ' + missing.from + (graph.directed ? ' → ' : ' — ') + missing.to + '.');
+      const negative = graph.edges.find(edge => edge.weight < 0);
+      if (negative) throw new Error('Dijkstra no admite pesos negativos. Revisá ' + negative.from + (graph.directed ? ' → ' : ' — ') + negative.to + ' (' + negative.weight + ').');
+    }
+    const program = PROGRAMS[algorithm];
+    const lineNumber = tag => {
+      const index = program.lines.findIndex(row => row.tag === tag);
+      if (index < 0) throw new Error('Etiqueta de código desconocida: ' + tag);
+      return index + 1;
+    };
+    const states = [];
+    const visited = new Set();
+    const order = [];
+    const queue = [];
+    const frames = [];
+    const levels = new Map();
+    const treeEdges = [];
+    const parents = new Map();
+    const calls = [];
+    const distances = new Map();
+    const predecessors = new Map();
+    let pendingCall = null;
+    let actual = null;
+    let neighbor = null;
+    let loopNeighbors = [];
+    let loopIndex = -1;
+    let alternative = null;
+    let edgeWeight = null;
+    let previousDistance = null;
+    // Son fotografías didácticas de entrada, no copias que recibe el algoritmo.
+    // Se comparten entre estados, pero se congelan para no poder alterarlas.
+    function receiveCall(id, parentId, method) {
+      const received = Object.freeze({
+        actual: id, origin,
+        visited: Object.freeze([...visited]), order: Object.freeze([...order]),
+        treeEdges: Object.freeze(treeEdges.map(edge => Object.freeze({...edge})))
+      });
+      const call = {id: calls.length + 1, parentId, method, actual: id, origin,
+        enteredAt: states.length, returnedAt: null, neighbor: null, received};
+      calls.push(call);
+      return call;
+    }
+    if (algorithm === 'bfs') receiveCall(origin, null, 'bfs');
+    if (algorithm === 'dijkstra') receiveCall(origin, null, 'dijkstra');
+    function record(kind, tag, title, detail, added = null) {
+      if (states.length >= LIMITS.steps) throw new Error('La simulación supera ' + LIMITS.steps + ' pasos. Reducí el grafo para explicarlo en clase.');
+      const frameByCall = new Map(frames.map(frame => [frame.callId, frame]));
+      if (algorithm !== 'recursive' && kind === 'done') calls[0].returnedAt = states.length;
+      const candidates = graph.ids.filter(id => !visited.has(id)).sort((a, b) => {
+        const da = distances.has(a) ? distances.get(a) : Infinity;
+        const db = distances.has(b) ? distances.get(b) : Infinity;
+        if (da !== db) return da < db ? -1 : 1;
+        return graph.ids.indexOf(a) - graph.ids.indexOf(b);
+      });
+      states.push({kind, line: tag ? lineNumber(tag) : null, title, detail, added, actual, neighbor,
+        visited: [...visited], order: [...order], queue: [...queue], treeEdges: treeEdges.map(edge => ({...edge})), parents: [...parents].map(pair => [...pair]),
+        frames: frames.map(frame => ({...frame})), levels: [...levels].map(pair => [...pair]),
+        distances: graph.ids.map(id => [id, distances.has(id) ? distances.get(id) : Infinity]),
+        predecessors: [...predecessors].map(pair => [...pair]), candidates,
+        alternative, edgeWeight, previousDistance,
+        calls: calls.map(call => ({...call, status: call.returnedAt !== null ? 'returned'
+          : algorithm !== 'recursive' ? kind === 'initial' ? 'ready' : 'active'
+            : frameByCall.get(call.id)?.status || 'entry'})),
+        pendingCall: pendingCall ? {...pendingCall} : null,
+        loopNeighbors: [...loopNeighbors], loopIndex});
+    }
+    record('initial', null, 'Listo para comenzar', 'Origen: ' + origin + '. Avanzá por cada instrucción y cada iteración del for.');
+    if (algorithm === 'bfs') {
+      visited.add(origin);
+      record('visit', 'markOrigin', 'Marca el origen como visitado', 'BFS marca al descubrir, antes de encolar. Evita agregar el mismo vértice varias veces.', origin);
+      levels.set(origin, 0);
+      record('level', 'levelOrigin', 'Asigna nivel 0 al origen', 'El origen está a cero conexiones de sí mismo.', origin);
+      queue.push(origin);
+      record('enqueue', 'enqueueOrigin', 'Encola ' + origin, 'El frente de la cola se muestra a la izquierda.');
+      while (true) {
+        neighbor = null;
+        loopNeighbors = [];
+        loopIndex = -1;
+        record('while', 'while', '!cola.isEmpty() → ' + (queue.length > 0), queue.length ? 'Hay vértices pendientes de procesar.' : 'La cola está vacía: se sale del while.');
+        if (!queue.length) break;
+        actual = queue.shift();
+        record('pop', 'pop', 'Desencola ' + actual, 'Se extrae el vértice que llevaba más tiempo esperando.');
+        order.push(actual);
+        record('list', 'append', 'Agrega ' + actual + ' al recorrido', 'La lista registra el orden de procesamiento. El conjunto visitados registra los descubiertos.', actual);
+        loopNeighbors = graph.ordered.get(actual);
+        for (let i = 0; i < loopNeighbors.length; i++) {
+          neighbor = loopNeighbors[i];
+          loopIndex = i;
+          record('for', 'for', 'El for de ' + actual + ' toma ' + neighbor, 'Vecino ' + (i + 1) + ' de ' + loopNeighbors.length + '.');
+          const isNew = !visited.has(neighbor);
+          record('condition', 'condition', '!visitados.contains(' + neighbor + ') → ' + isNew, isNew ? 'Es un vecino nuevo: se marca, se asigna su nivel y se encola.' : 'Ya fue descubierto. No se vuelve a encolar.');
+          if (isNew) {
+            visited.add(neighbor);
+            record('visit', 'mark', 'Marca ' + neighbor + ' como visitado', 'Se marca antes de entrar en la cola, no al desencolar.', neighbor);
+            parents.set(neighbor, actual);
+            treeEdges.push({from: actual, to: neighbor});
+            record('edge', 'edge', 'Agrega arista ' + actual + ' → ' + neighbor, 'Esta conexión descubre al vecino. Queda en el árbol BFS; las conexiones hacia visitados no se agregan.', neighbor);
+            levels.set(neighbor, levels.get(actual) + 1);
+            record('level', 'level', 'Nivel de ' + neighbor + ' = ' + levels.get(neighbor), 'Nivel del vértice actual + 1: cantidad mínima de conexiones desde el origen. No es la suma de pesos.', neighbor);
+            queue.push(neighbor);
+            record('enqueue', 'enqueue', 'Encola ' + neighbor, 'Se agrega al final de la cola. Todavía no se procesan sus vecinos.');
+          }
+        }
+        neighbor = null;
+        loopIndex = -1;
+        record('loop-end', 'endFor', 'Termina el for de ' + actual, 'Se analizaron sus vecinos. Se vuelve al while para extraer otro vértice.');
+      }
+      actual = null;
+      record('done', 'done', 'BFS finalizado', 'La cola está vacía; todos los vértices alcanzables desde el origen fueron procesados.');
+    } else if (algorithm === 'recursive') {
+      function descend(id) {
+        if (frames.length) frames[frames.length - 1].status = 'paused';
+        const parent = frames[frames.length - 1];
+        const call = receiveCall(id, parent ? parent.callId : null, 'dfs');
+        pendingCall = null;
+        const frame = {callId: call.id, actual: id, neighbor: null, index: -1, status: 'entry'};
+        frames.push(frame);
+        actual = id;
+        neighbor = null;
+        loopNeighbors = graph.ordered.get(id);
+        loopIndex = -1;
+        record('entry', 'entry', 'Entra en dfs(' + id + ')', 'Se apila una nueva llamada. Las anteriores conservan su posición en el for.');
+        visited.add(id);
+        record('visit', 'mark', 'Marca ' + id + ' como visitado', 'Todas las llamadas comparten el mismo conjunto visitados.', id);
+        order.push(id);
+        record('list', 'append', 'Agrega ' + id + ' al recorrido', 'La lista crece al entrar por primera vez, no al retornar.', id);
+        const localNeighbors = graph.ordered.get(id);
+        for (let i = 0; i < localNeighbors.length; i++) {
+          actual = id;
+          neighbor = localNeighbors[i];
+          loopNeighbors = localNeighbors;
+          loopIndex = i;
+          frame.neighbor = neighbor;
+          call.neighbor = neighbor;
+          frame.index = i;
+          frame.status = 'for';
+          record('for', 'for', 'El for de ' + id + ' toma ' + neighbor, 'Cada llamada conserva su propia variable vecino y su posición dentro del ciclo.');
+          const isNew = !visited.has(neighbor);
+          record('condition', 'condition', '!visitados.contains(' + neighbor + ') → ' + isNew, isNew ? 'Se profundizará en este vecino mediante una nueva llamada.' : 'Se omite: entrar nuevamente podría repetir la exploración o recorrer un ciclo indefinidamente.');
+          if (isNew) {
+            const child = neighbor;
+            parents.set(child, id);
+            treeEdges.push({from: id, to: child});
+            record('edge', 'edge', 'Agrega arista ' + id + ' → ' + child, 'El vecino aún no está visitado: esta arista forma parte del árbol DFS. Ahora se hará la llamada recursiva.', child);
+            pendingCall = {actual: child, parentId: call.id};
+            record('call', 'call', id + ' llama a dfs(' + child + ')', 'La llamada actual quedará pausada en esta línea mientras se explora el vecino.');
+            descend(child);
+            actual = id;
+            neighbor = child;
+            loopNeighbors = localNeighbors;
+            loopIndex = i;
+            frame.status = 'resume';
+            record('resume', 'call', 'Se retoma el for de ' + id, 'Terminó dfs(' + child + '). El for sigue después de esa llamada: no comienza desde el primer vecino.');
+          }
+        }
+        actual = id;
+        neighbor = null;
+        loopNeighbors = localNeighbors;
+        loopIndex = -1;
+        frame.neighbor = null;
+        call.neighbor = null;
+        frame.index = -1;
+        frame.status = 'finished';
+        record('loop-end', 'endFor', 'Termina el for de ' + id, 'No quedan vecinos nuevos por explorar desde esta llamada.');
+        frames.pop();
+        const resumed = frames[frames.length - 1];
+        actual = resumed ? resumed.actual : null;
+        neighbor = resumed ? resumed.neighbor : null;
+        loopNeighbors = resumed ? graph.ordered.get(resumed.actual) : [];
+        loopIndex = resumed ? resumed.index : -1;
+        if (resumed) resumed.status = 'resume';
+        call.returnedAt = states.length;
+        record('return', 'return', resumed ? 'Retorna ' + id + ' → ' + resumed.actual : 'DFS finalizado: pila vacía', 'Sale la llamada dfs(' + id + ') de la pila, pero ' + id + ' permanece en visitados. Retornar no agrega una arista nueva al árbol.');
+      }
+      descend(origin);
+    } else if (algorithm === 'dijkstra') {
+      for (const id of graph.ids) distances.set(id, Infinity);
+      record('initialize', 'initialize', 'Inicializa todas las distancias en infinito', 'Todavía no se conoce ningún camino desde ' + origin + '.');
+      distances.set(origin, 0);
+      record('distance', 'setOrigin', 'Distancia de ' + origin + ' = 0', 'El origen está a costo cero de sí mismo.', origin);
+      while (true) {
+        actual = null;
+        neighbor = null;
+        loopNeighbors = [];
+        loopIndex = -1;
+        alternative = null;
+        edgeWeight = null;
+        previousDistance = null;
+        record('while', 'while', 'Comprueba si quedan vértices por fijar', visited.size < graph.vertices.size
+          ? 'Todavía hay vértices sin distancia definitiva.'
+          : 'Todos los vértices fueron procesados.');
+        if (visited.size >= graph.vertices.size) break;
+        for (const id of graph.ids) {
+          if (visited.has(id) || !Number.isFinite(distances.get(id))) continue;
+          if (actual === null || distances.get(id) < distances.get(actual)) actual = id;
+        }
+        record('select', 'select', actual === null ? 'No existe otro vértice alcanzable' : 'Selecciona ' + actual + ' con distancia ' + distances.get(actual), actual === null
+          ? 'Los vértices restantes conservan distancia infinita: no son alcanzables desde el origen.'
+          : 'Es el vértice no visitado con menor distancia tentativa. Los empates se resuelven por el orden de las etiquetas.');
+        if (actual === null) {
+          record('unreachable', 'unreachable', 'Finaliza la búsqueda alcanzable', 'No puede elegirse otro vértice con distancia finita.');
+          break;
+        }
+        visited.add(actual);
+        order.push(actual);
+        record('visit', 'mark', 'Fija la distancia de ' + actual, 'Desde este momento, ' + distances.get(actual) + ' es su distancia mínima definitiva.', actual);
+        loopNeighbors = graph.ordered.get(actual);
+        for (let i = 0; i < loopNeighbors.length; i++) {
+          neighbor = loopNeighbors[i];
+          loopIndex = i;
+          edgeWeight = graph.adjacency.get(actual).get(neighbor);
+          alternative = null;
+          previousDistance = distances.get(neighbor);
+          record('for', 'for', 'Analiza ' + actual + ' → ' + neighbor, 'Peso de la conexión: ' + edgeWeight + '. Vecino ' + (i + 1) + ' de ' + loopNeighbors.length + '.');
+          const canRelax = !visited.has(neighbor);
+          record('condition', 'condition', '!visitados.contains(' + neighbor + ') → ' + canRelax, canRelax
+            ? 'La distancia del vecino todavía es tentativa y puede mejorarse.'
+            : 'La distancia del vecino ya es definitiva; no se vuelve a relajar.');
+          if (!canRelax) continue;
+          alternative = distances.get(actual) + edgeWeight;
+          record('calculation', 'alternative', 'Calcula alternativa = ' + distances.get(actual) + ' + ' + edgeWeight + ' = ' + alternative, 'Se suma la distancia mínima hasta ' + actual + ' y el peso de la conexión hacia ' + neighbor + '.');
+          const improves = alternative < previousDistance;
+          record('comparison', 'improve', alternative + ' < ' + (Number.isFinite(previousDistance) ? previousDistance : '∞') + ' → ' + improves, improves
+            ? 'El nuevo camino es mejor: se actualizarán distancia y predecesor.'
+            : 'El camino conocido es igual o mejor; no se modifica.');
+          if (improves) {
+            distances.set(neighbor, alternative);
+            record('distance', 'updateDistance', 'Actualiza distancia de ' + neighbor + ' = ' + alternative, 'La distancia sigue siendo tentativa hasta que ' + neighbor + ' sea seleccionado como mínimo.', neighbor);
+            predecessors.set(neighbor, actual);
+            parents.set(neighbor, actual);
+            const oldEdge = treeEdges.findIndex(edge => edge.to === neighbor);
+            if (oldEdge >= 0) treeEdges.splice(oldEdge, 1);
+            treeEdges.push({from: actual, to: neighbor, weight: edgeWeight});
+            record('relax', 'updatePredecessor', 'Predecesor de ' + neighbor + ' = ' + actual, 'La relajación conserva la mejor conexión conocida para reconstruir el camino mínimo.', neighbor);
+          }
+        }
+        neighbor = null;
+        loopIndex = -1;
+        alternative = null;
+        edgeWeight = null;
+        previousDistance = null;
+        record('loop-end', 'endFor', 'Termina el análisis de ' + actual, 'Se vuelve a buscar el vértice no visitado con menor distancia tentativa.');
+      }
+      actual = null;
+      neighbor = null;
+      record('done', 'done', 'Dijkstra finalizado', 'Las distancias de los vértices visitados son mínimas y definitivas. Los restantes no son alcanzables desde ' + origin + '.');
+    }
+    return {algorithm, origin, program, states};
+  }
+  function levelsByDiscovery(state) {
+    const levels = [];
+    for (const [vertex, depth] of state.levels) {
+      if (!levels[depth]) levels[depth] = [];
+      levels[depth].push(vertex);
+    }
+    return levels;
+  }
+  return {LIMITS, PROGRAMS, EXAMPLES, parseGraph, createTrace, levelsByDiscovery};
+});
+
+/** Interfaz sin dependencias: funciona también abriendo index.html por file://. */
+(() => {
+  'use strict';
+  const Core = window.GraphSimulatorCore;
+  const $ = id => document.getElementById(id);
+  let activeExampleKey = null;
+  let graph;
+  let simulation;
+  let position = 0;
+  let pendingChanges = false;
+  let codeNodes = [];
+  let selectedCallId = null;
+  function element(tag, text, className) {
+    const node = document.createElement(tag);
+    if (text !== undefined) node.textContent = text;
+    if (className) node.className = className;
+    return node;
+  }
+  const describe = id => id + ' · ' + graph.vertices.get(id).label;
+  const formatDistance = value => Number.isFinite(value) ? String(value) : '∞';
+  const empty = text => element('span', text, 'empty');
+  function showError(error) {
+    $('editor-error').textContent = error.message;
+    $('editor-error').hidden = false;
+  }
+  function installProgram() {
+    selectedCallId = null;
+    const program = simulation.program;
+    const mode = simulation.algorithm;
+    $('algorithm-title').textContent = program.title;
+    $('memory-title').textContent = program.memory;
+    $('levels-panel').hidden = mode !== 'bfs';
+    $('distances-panel').hidden = mode !== 'dijkstra';
+    $('call-picker-label').hidden = mode !== 'recursive';
+    $('locals-details').open = mode !== 'recursive';
+    $('parameters-title').textContent = mode === 'recursive' ? 'Parámetros por llamada' : 'Parámetro y variables del método';
+    $('return-legend').hidden = mode !== 'recursive';
+    if (mode === 'bfs') {
+      $('memory-note').textContent = 'Frente a la izquierda; el primer elemento será el próximo en salir.';
+      $('visited-title').textContent = 'Visitados';
+      $('visited-note').textContent = 'BFS marca al descubrir, antes de encolar. Se dibuja el orden de incorporación; HashSet no garantiza ese orden.';
+      $('order-title').textContent = 'Recorrido';
+      $('order-help').textContent = 'Orden de procesamiento al retirar elementos de la cola. No necesariamente representa un itinerario.';
+      $('tree-title').textContent = 'Aristas del recorrido';
+      $('tree-help').textContent = 'Árbol de descubrimiento: cada vértice nuevo tiene un padre. El origen no tiene padre. La lista acumula solo las conexiones aceptadas.';
+      $('graph-heading').textContent = 'Grafo cargado y árbol de descubrimiento';
+      $('graph-help').textContent = 'Las flechas verdes indican quién descubre a quién. La conexión examinada aparece azul discontinua. Los pesos se conservan, pero BFS los ignora.';
+      $('visited-legend-label').textContent = 'Visitado';
+      $('tree-legend-label').textContent = 'Arista del árbol';
+      $('algorithm-note').textContent = 'Los niveles indican la menor cantidad de conexiones desde el origen. No indican el menor tiempo de traslado: BFS ignora los pesos.';
+      $('code-footnote').innerHTML = 'El navegador ejecuta una simulación JavaScript equivalente. <code>obtenerVecinos</code> entrega vecinos ordenados por etiqueta; ante empate, por id.';
+    } else if (mode === 'recursive') {
+      $('memory-note').textContent = 'Tope arriba. Se muestran solo las llamadas al método recursivo.';
+      $('visited-title').textContent = 'Visitados';
+      $('visited-note').textContent = 'DFS recursivo marca al entrar en cada vértice. Se dibuja el orden de incorporación; HashSet no garantiza ese orden.';
+      $('order-title').textContent = 'Recorrido';
+      $('order-help').textContent = 'Orden de primera visita en DFS. No necesariamente representa un itinerario.';
+      $('tree-title').textContent = 'Aristas del recorrido';
+      $('tree-help').textContent = 'Árbol de descubrimiento: cada vértice nuevo tiene un padre. Retornar de una llamada no agrega otra arista.';
+      $('graph-heading').textContent = 'Grafo cargado y árbol de descubrimiento';
+      $('graph-help').textContent = 'Las flechas verdes indican quién descubre a quién. La conexión examinada aparece azul discontinua y el retorno naranja. Los pesos se conservan, pero DFS los ignora.';
+      $('visited-legend-label').textContent = 'Visitado';
+      $('tree-legend-label').textContent = 'Arista del árbol';
+      $('algorithm-note').textContent = 'DFS recursivo explora los vértices alcanzables, pero no garantiza caminos mínimos. Volver de una llamada no elimina un vértice de visitados.';
+      $('code-footnote').innerHTML = 'El navegador ejecuta una simulación JavaScript equivalente. <code>obtenerVecinos</code> entrega vecinos ordenados por etiqueta; ante empate, por id.';
+    } else {
+      $('memory-note').textContent = 'Vértices todavía no fijados, ordenados por su distancia tentativa; los valores infinitos quedan al final.';
+      $('visited-title').textContent = 'Distancias definitivas';
+      $('visited-note').textContent = 'Un vértice se incorpora cuando es el no visitado de menor distancia. Desde ese momento su costo es definitivo.';
+      $('order-title').textContent = 'Orden de fijación';
+      $('order-help').textContent = 'Orden en que las distancias dejan de ser tentativas. No representa por sí solo un camino.';
+      $('tree-title').textContent = 'Predecesores elegidos';
+      $('tree-help').textContent = 'Cada flecha representa el mejor predecesor conocido. Puede reemplazarse si una relajación encuentra un costo menor.';
+      $('graph-heading').textContent = 'Grafo cargado y árbol de caminos mínimos';
+      $('graph-help').textContent = 'Las flechas verdes representan los predecesores actualmente elegidos. Una conexión azul discontinua está siendo examinada; su peso sí interviene en Dijkstra.';
+      $('visited-legend-label').textContent = 'Distancia definitiva';
+      $('tree-legend-label').textContent = 'Predecesor actual';
+      const professorNote = activeExampleKey === 'professor' && simulation.origin === 'Q'
+        ? ' En este ejemplo, Z recibe primero la distancia tentativa 10 al relajar desde K, pero Dijkstra todavía no termina: antes debe fijar M (4) y A (5). Finaliza cuando Z es seleccionado y 10 se vuelve definitivo. Hay tres caminos mínimos de costo 10; como el código actualiza solo si encuentra un valor estrictamente menor (<), conserva el primero: Q → W → K → Z.'
+        : '';
+      $('algorithm-note').textContent = 'Dijkstra minimiza la suma de los pesos desde el origen. Una distancia se vuelve definitiva al seleccionar el menor vértice no visitado. Termina cuando todos fueron fijados o cuando los restantes conservan distancia infinita y son inalcanzables.' + professorNote;
+      $('code-footnote').innerHTML = 'Versión didáctica <code>O(V²)</code>: <code>menorNoVisitado</code> hace una búsqueda lineal. Ante distancias iguales se respeta el orden de las etiquetas.';
+    }
+    codeNodes = program.lines.map((row, i) => {
+      const node = element('li');
+      node.dataset.line = String(i + 1);
+      node.append(element('code', row.text));
+      return node;
+    });
+    $('source-code').replaceChildren(...codeNodes);
+  }
+  function installGraph() {
+    const previousOrigin = $('origin').value;
+    const options = graph.ids.map(id => {
+      const option = element('option', describe(id));
+      option.value = id;
+      return option;
+    });
+    $('origin').replaceChildren(...options);
+    $('origin').value = graph.vertices.has(previousOrigin) ? previousOrigin : graph.ids[0];
+    $('graph-meta').textContent = graph.vertices.size + ' vértices · ' + graph.edges.length + ' aristas · ' + (graph.directed ? 'dirigido' : 'no dirigido');
+    $('adjacency-body').replaceChildren(...graph.ids.map(id => {
+      const row = element('tr');
+      const neighbors = graph.ordered.get(id).map(to => {
+        const weight = graph.adjacency.get(id).get(to);
+        return to + (weight === null ? '' : ' (' + weight + ')');
+      }).join(', ');
+      row.append(element('td', describe(id)), element('td', neighbors || 'Sin vecinos'));
+      return row;
+    }));
+  }
+  /** Validar todo antes de reemplazar el grafo evita perder una simulación válida. */
+  function applyGraph(preferredOrigin = null) {
+    try {
+      const candidate = Core.parseGraph($('vertices-input').value, $('edges-input').value, $('directed').checked);
+      const requested = preferredOrigin || $('origin').value;
+      const origin = candidate.vertices.has(requested) ? requested : candidate.ids[0];
+      const candidateSimulation = Core.createTrace(candidate, $('algorithm').value, origin);
+      graph = candidate;
+      simulation = candidateSimulation;
+      position = 0;
+      installGraph();
+      $('origin').value = origin;
+      installProgram();
+      pendingChanges = false;
+      $('editor-error').hidden = true;
+      $('editor-status').textContent = 'Grafo aplicado. Cambiar el origen o el algoritmo inicia un recorrido nuevo.';
+      render();
+      return true;
+    } catch (error) { showError(error); return false; }
+  }
+  function restartSimulation() {
+    try {
+      const candidate = Core.createTrace(graph, $('algorithm').value, $('origin').value);
+      simulation = candidate;
+      position = 0;
+      installProgram();
+      render();
+    } catch (error) {
+      $('algorithm').value = simulation.algorithm;
+      $('origin').value = simulation.origin;
+      showError(error);
+    }
+  }
+  function loadExample(key) {
+    const example = Core.EXAMPLES[key];
+    activeExampleKey = key;
+    $('vertices-input').value = example.vertices;
+    $('edges-input').value = example.edges;
+    $('directed').checked = example.directed;
+    if (example.algorithm) $('algorithm').value = example.algorithm;
+    applyGraph(example.origin);
+  }
+  function collection(container, values, type, state) {
+    const nodes = values.map((id, index) => {
+      const added = state.added === id && state.kind === (type === 'order' ? 'list' : 'visit');
+      const node = element('span', undefined, 'token' + (type === 'order' ? ' order' : '') + (added ? ' new' : ''));
+      node.setAttribute('aria-label', (type === 'order' ? 'Posición ' + (index + 1) + ': ' : '') + describe(id));
+      if (type === 'order') node.append(element('small', String(index + 1)));
+      node.append(element('span', id));
+      return node;
+    });
+    container.replaceChildren(...(nodes.length ? nodes : [empty(type === 'order' ? '[ ]' : '{ }')]));
+  }
+  function renderMemory(state) {
+    const mode = simulation.algorithm;
+    const memory = $('memory');
+    memory.className = 'memory' + (mode === 'bfs' || mode === 'dijkstra' ? ' queue' : '');
+    let nodes;
+    let count;
+    if (mode === 'recursive') {
+      count = state.frames.length;
+      nodes = [...state.frames].reverse().map((frame, i) => {
+        const node = element('div', undefined, 'frame' + (i === 0 ? ' active' : ''));
+        const header = element('div', undefined, 'frame-heading');
+        header.append(element('code', 'dfs(' + frame.actual + ')'), element('span', i === 0 ? 'TOPE · activa' : 'pausada'));
+        const explanation = i > 0 ? 'Espera a dfs(' + frame.neighbor + ')'
+          : frame.status === 'finished' ? 'for terminado · falta retornar'
+            : frame.status === 'resume' ? 'Retoma después de dfs(' + frame.neighbor + ')'
+              : frame.neighbor ? 'Analiza vecino: ' + frame.neighbor : 'for aún no iniciado';
+        const local = element('div', undefined, 'frame-neighbors');
+        local.append(element('span', 'for:'));
+        graph.ordered.get(frame.actual).forEach((id, index) => local.append(element('code', id, index === frame.index ? 'selected' : '')));
+        node.append(header, element('div', explanation, 'frame-state'), local);
+        return node;
+      });
+    } else if (mode === 'bfs') {
+      const values = state.queue;
+      count = values.length;
+      nodes = values.map(id => element('div', id, 'memory-entry'));
+    } else {
+      const values = state.candidates;
+      const distanceMap = new Map(state.distances);
+      count = values.length;
+      nodes = values.map(id => element('div', id + ' · ' + formatDistance(distanceMap.get(id)), 'memory-entry'));
+    }
+    const emptyMessage = mode === 'bfs' ? 'Cola vacía' : mode === 'recursive' ? 'Pila vacía' : 'Sin vértices pendientes';
+    memory.replaceChildren(...(nodes.length ? nodes : [empty(emptyMessage)]));
+    $('memory-count').textContent = count + (mode === 'recursive' ? ' llamadas' : ' pendientes');
+  }
+  function callForDisplay(state) {
+    const selected = state.calls.find(call => call.id === selectedCallId);
+    if (selected) return selected;
+    selectedCallId = null;
+    const activeId = state.frames[state.frames.length - 1]?.callId;
+    // Al finalizar, la última llamada en retornar es la del origen (#1).
+    return state.calls.find(call => call.id === activeId) || state.calls[0] || null;
+  }
+  const setValue = values => '{ ' + values.join(', ') + ' }';
+  const listValue = values => '[ ' + values.join(', ') + ' ]';
+  const edgesValue = edges => listValue(edges.map(edge => edge.from + ' → ' + edge.to));
+  function renderParameters(state) {
+    const recursive = simulation.algorithm === 'recursive';
+    const dijkstra = simulation.algorithm === 'dijkstra';
+    const activeId = state.frames[state.frames.length - 1]?.callId;
+    const call = callForDisplay(state);
+    const follow = element('option', 'Seguir la llamada activa');
+    follow.value = 'follow';
+    const options = recursive ? state.calls.map(item => {
+      const status = item.returnedAt !== null ? 'finalizada' : item.id === activeId ? 'activa' : 'pausada';
+      const option = element('option', '#' + item.id + ' · dfs(' + item.actual + ') · ' + status);
+      option.value = String(item.id);
+      return option;
+    }) : [];
+    $('call-picker').replaceChildren(follow, ...options);
+    $('call-picker').value = selectedCallId === null ? 'follow' : String(selectedCallId);
+    $('call-picker').disabled = !state.calls.length;
+    $('pending-call').hidden = !state.pendingCall;
+    if (state.pendingCall) $('pending-call').textContent = 'Próxima llamada: dfs(' + JSON.stringify(state.pendingCall.actual)
+      + ', visitados, recorrido, aristas). vecino = ' + JSON.stringify(state.pendingCall.actual)
+      + ' se recibirá como actual; se pasarán las mismas referencias V, R y A.';
+    if (!call) {
+      $('call-counter').textContent = 'Ninguna llamada ejecutada';
+      $('call-status').textContent = 'Avanzá un paso para entrar en la llamada del origen.';
+      $('call-signature').textContent = 'Próxima: dfs(' + JSON.stringify(simulation.origin) + ', visitados, recorrido, aristas)';
+      $('call-parameters').replaceChildren();
+      $('call-locals').replaceChildren();
+      $('parameters-note').textContent = 'Cada llamada tendrá su propio parámetro actual, pero compartirá visitados, recorrido y aristas con las otras llamadas.';
+      return;
+    }
+    const status = call.returnedAt !== null ? (recursive ? 'Finalizada: ya salió de la pila.' : 'Finalizada: el método devolvió el resultado.')
+      : call.status === 'ready' ? 'Llamada preparada. La inicialización de las variables locales se resume en la simulación.'
+        : recursive && call.id !== activeId ? 'Pausada: espera a que termine la llamada de un vecino.' : 'Activa: se está ejecutando esta llamada.';
+    $('call-counter').textContent = '#' + call.id + (recursive ? ' · ' + state.calls.length + ' llamadas recibidas' : ' · una sola llamada');
+    $('call-status').textContent = status + (recursive ? ' Recibió sus parámetros en el paso ' + call.enteredAt + '.' : ' origen permanece fijo aunque actual cambie.');
+    $('call-signature').textContent = recursive ? 'dfs(' + JSON.stringify(call.actual) + ', visitados, recorrido, aristas)'
+      : call.method + '(' + JSON.stringify(call.origin) + ')';
+    const rows = recursive ? [
+      {name:'actual', type:'String', received:JSON.stringify(call.received.actual), current:JSON.stringify(call.actual)},
+      {name:'visitados', type:'Set<String>', received:setValue(call.received.visited), current:setValue(state.visited), reference:'V'},
+      {name:'recorrido', type:'List<String>', received:listValue(call.received.order), current:listValue(state.order), reference:'R'},
+      {name:'aristas', type:'List<AristaRecorrido>', received:edgesValue(call.received.treeEdges), current:edgesValue(state.treeEdges), reference:'A'}
+    ] : [{name:'origen', type:'String', received:JSON.stringify(call.received.origin), current:JSON.stringify(call.origin)}];
+    $('call-parameters').replaceChildren(...rows.map(item => {
+      const row = element('tr'); row.dataset.parameter = item.name;
+      const heading = element('th'); heading.setAttribute('scope', 'row');
+      heading.append(element('code', item.name), element('span', item.type, 'parameter-type'));
+      if (item.reference) heading.append(element('span', 'Objeto compartido · ref. ' + item.reference, 'parameter-reference'));
+      const received = element('td'); received.append(element('code', item.received));
+      const current = element('td'); current.append(element('code', item.current));
+      row.append(heading, received, current); return row;
+    }));
+    $('parameters-note').textContent = recursive
+      ? 'Al entrar es una fotografía para comparar, no una copia recibida por DFS. Java pasa por valor las referencias V, R y A: todas las llamadas acceden a las mismas tres colecciones. Su contenido en este paso puede seguir cambiando incluso después de que una llamada retorne. V, R y A son identificadores didácticos; los valores usan ids del grafo.'
+      : dijkstra
+        ? 'El único parámetro es origen. Distancias, predecesores y visitados son variables locales; Dijkstra no realiza llamadas recursivas.'
+        : 'El único parámetro de BFS es origen. visitados, recorrido, aristas y cola se crean dentro del método: son variables locales. BFS no vuelve a llamar al método al cambiar de vértice.';
+    let locals;
+    if (recursive) locals = [['vecino del for', call.returnedAt !== null ? 'Fuera de alcance: llamada finalizada.'
+      : call.neighbor === null ? '— (fuera del for)' : JSON.stringify(call.neighbor)]];
+    else if (!dijkstra) {
+      locals = [['actual', state.actual === null ? '—' : JSON.stringify(state.actual)], ['vecino', state.neighbor === null ? '—' : JSON.stringify(state.neighbor)],
+        ['visitados', setValue(state.visited)], ['recorrido', listValue(state.order)], ['aristas', edgesValue(state.treeEdges)]];
+      locals.push(['cola (frente primero)', listValue(state.queue)], ['nivel', '{ ' + state.levels.map(([id, level]) => id + '=' + level).join(', ') + ' }']);
+    } else {
+      const distanceValue = '{ ' + state.distances.map(([id, value]) => id + '=' + formatDistance(value)).join(', ') + ' }';
+      const predecessorValue = '{ ' + state.predecessors.map(([id, value]) => id + '=' + value).join(', ') + ' }';
+      locals = [['actual', state.actual === null ? '—' : JSON.stringify(state.actual)], ['vecino', state.neighbor === null ? '—' : JSON.stringify(state.neighbor)],
+        ['visitados (definitivos)', setValue(state.visited)], ['distancias', distanceValue], ['predecesores', predecessorValue],
+        ['peso(actual, vecino)', state.edgeWeight === null ? '—' : String(state.edgeWeight)],
+        ['alternativa', state.alternative === null ? '—' : String(state.alternative)]];
+    }
+    $('call-locals').replaceChildren(...locals.flatMap(([name, value]) => {
+      const term = element('dt', name), detail = element('dd'); detail.append(element('code', value)); return [term, detail];
+    }));
+  }
+  function renderLevels(state) {
+    const levels = Core.levelsByDiscovery(state);
+    $('levels').replaceChildren(...(levels.length ? levels.map((vertices, depth) => {
+      const row = element('div', undefined, 'level-row');
+      const tokens = element('div', undefined, 'tokens');
+      vertices.forEach(id => tokens.append(element('span', id, 'token neighbor')));
+      row.append(element('span', 'Nivel ' + depth), tokens);
+      return row;
+    }) : [empty('Todavía no hay niveles asignados.') ]));
+  }
+  function renderDistances(state) {
+    const distances = new Map(state.distances);
+    const predecessors = new Map(state.predecessors);
+    const fixed = new Set(state.visited);
+    $('distances-body').replaceChildren(...graph.ids.map(id => {
+      const row = element('tr');
+      const classes = [];
+      if (fixed.has(id)) classes.push('fixed-row');
+      if (id === state.actual) classes.push('current-row');
+      else if (id === state.neighbor) classes.push('neighbor-row');
+      row.className = classes.join(' ');
+      const distanceCell = element('td', formatDistance(distances.get(id)), 'distance-value');
+      const status = fixed.has(id) ? 'Definitiva' : Number.isFinite(distances.get(id)) ? 'Tentativa' : 'Sin alcanzar';
+      row.append(element('td', describe(id)), distanceCell, element('td', predecessors.get(id) || '—'), element('td', status));
+      return row;
+    }));
+    if (state.neighbor !== null && state.edgeWeight !== null && state.alternative !== null) {
+      $('relaxation-note').textContent = 'Relajación: d[' + state.actual + '] + peso(' + state.actual + ', ' + state.neighbor + ') = '
+        + formatDistance(new Map(state.distances).get(state.actual)) + ' + ' + state.edgeWeight + ' = ' + state.alternative
+        + '. Valor anterior de d[' + state.neighbor + ']: ' + formatDistance(state.previousDistance) + '.';
+    } else {
+      $('relaxation-note').textContent = 'La distancia es tentativa hasta que el vértice se fija como visitado. Una mejora también reemplaza su predecesor.';
+    }
+  }
+  const svgNS = 'http://www.w3.org/2000/svg';
+  function svgNode(tag, attrs, text) {
+    const node = document.createElementNS(svgNS, tag);
+    for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, String(value));
+    if (text !== undefined) node.textContent = text;
+    return node;
+  }
+  function renderGraph(state) {
+    const container = $('graph-drawing');
+    const width = Math.floor(container.getBoundingClientRect().width);
+    if (!width) return;
+    const count = graph.ids.length;
+    const compact = count <= 12;
+    const columns = compact ? 0 : Math.max(2, Math.min(Math.ceil(Math.sqrt(count)), Math.floor(width / 65)));
+    const height = compact ? 320 : 75 + Math.ceil(count / columns) * 66;
+    const coords = new Map(graph.ids.map((id, i) => {
+      if (!compact) return [id, {x: (i % columns + .5) * width / columns, y: 60 + Math.floor(i / columns) * 66}];
+      const angle = -Math.PI / 2 + i * 2 * Math.PI / count;
+      const radius = count === 1 ? 0 : Math.min(width / 2 - 34, 100);
+      return [id, {x: width / 2 + radius * Math.cos(angle), y: height / 2 + radius * Math.sin(angle)}];
+    }));
+    const svg = svgNode('svg', {viewBox: '0 0 ' + width + ' ' + height, height, role: 'img', 'aria-label': 'Grafo ' + (graph.directed ? 'dirigido' : 'no dirigido') + '. ' + count + ' vértices. La tabla inferior muestra las conexiones completas.'});
+    const defs = svgNode('defs', {});
+    for (const [id, color] of [['arrow', '#8b9bb0'], ['arrow-active', '#185fbb'], ['arrow-tree', '#166347'], ['arrow-return', '#a35d06']]) {
+      const marker = svgNode('marker', {id, viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 6, markerHeight: 6, orient: 'auto-start-reverse'});
+      marker.append(svgNode('path', {d: 'M 0 0 L 10 5 L 0 10 z', fill: color}));
+      defs.append(marker);
+    }
+    svg.append(defs);
+    const radius = compact ? 19 : 17;
+    for (const edge of graph.edges) {
+      const accepted = state.treeEdges.find(e => e.from === edge.from && e.to === edge.to || !graph.directed && e.from === edge.to && e.to === edge.from);
+      const from = coords.get(accepted ? accepted.from : edge.from), to = coords.get(accepted ? accepted.to : edge.to);
+      const active = state.actual === edge.from && state.neighbor === edge.to
+        || !graph.directed && state.actual === edge.to && state.neighbor === edge.from;
+      const newlyAdded = (state.kind === 'edge' || state.kind === 'relax') && accepted === state.treeEdges[state.treeEdges.length - 1];
+      let path, tx, ty;
+      if (edge.from === edge.to) {
+        path = 'M ' + (from.x - 12) + ' ' + (from.y - 14) + ' C ' + (from.x - 38) + ' ' + (from.y - 54) + ', ' + (from.x + 38) + ' ' + (from.y - 54) + ', ' + (from.x + 12) + ' ' + (from.y - 14);
+        tx = from.x; ty = from.y - 43;
+      } else {
+        const dx = to.x - from.x, dy = to.y - from.y, length = Math.hypot(dx, dy);
+        const ux = dx / length, uy = dy / length;
+        const start = {x: from.x + ux * radius, y: from.y + uy * radius};
+        const end = {x: to.x - ux * (radius + 3), y: to.y - uy * (radius + 3)};
+        const paired = graph.directed && graph.adjacency.get(edge.to).has(edge.from);
+        const bend = paired ? 18 : 0;
+        tx = (from.x + to.x) / 2 - uy * bend;
+        ty = (from.y + to.y) / 2 + ux * bend;
+        path = 'M ' + start.x + ' ' + start.y + ' Q ' + tx + ' ' + ty + ' ' + end.x + ' ' + end.y;
+      }
+      const attrs = {d: path, fill: 'none', stroke: accepted ? '#166347' : '#b2bfce', 'stroke-width': accepted ? 3 : 1.2, 'data-edge-from': accepted ? accepted.from : edge.from, 'data-edge-to': accepted ? accepted.to : edge.to, 'data-tree-edge': String(Boolean(accepted))};
+      if (accepted || graph.directed) attrs['marker-end'] = 'url(#' + (accepted ? 'arrow-tree' : 'arrow') + ')';
+      svg.append(svgNode('path', attrs));
+      if (active || newlyAdded) {
+        const returning = state.kind === 'return';
+        const overlay = {d:path, fill:'none', stroke:returning ? '#a35d06' : newlyAdded ? '#166347' : '#185fbb', 'stroke-width':newlyAdded ? 4 : 1.7, 'stroke-dasharray':newlyAdded ? 'none' : '5 4'};
+        if (returning) overlay['marker-start'] = 'url(#arrow-return)';
+        else if (newlyAdded) overlay['marker-end'] = 'url(#arrow-tree)';
+        else if (graph.directed) overlay['marker-end'] = 'url(#arrow-active)';
+        svg.append(svgNode('path', overlay));
+      }
+      if (edge.weight !== null && (count <= 12 || active)) svg.append(svgNode('text', {x: tx, y: ty - 5, 'text-anchor': 'middle', fill: '#516479', 'font-size': 12, 'paint-order': 'stroke', stroke: '#fff', 'stroke-width': 4}, String(edge.weight)));
+    }
+    const seen = new Set(state.visited);
+    const distanceMap = new Map(state.distances);
+    for (const id of graph.ids) {
+      const point = coords.get(id);
+      const group = svgNode('g', {});
+      const status = id === state.actual ? 'actual' : id === state.neighbor ? 'vecino analizado' : seen.has(id) ? (simulation.algorithm === 'dijkstra' ? 'distancia definitiva' : 'visitado') : 'sin visitar';
+      const distanceDescription = simulation.algorithm === 'dijkstra' ? ' · distancia ' + formatDistance(distanceMap.get(id)) : '';
+      group.append(svgNode('title', {}, describe(id) + ' · ' + status + distanceDescription));
+      const fill = id === state.actual ? '#f5c46d' : id === state.neighbor ? '#9fc5fa' : seen.has(id) ? '#bce3ce' : '#e5ebf3';
+      group.append(svgNode('circle', {cx: point.x, cy: point.y, r: radius, fill, stroke: '#8b9bb0', 'stroke-width': 1}));
+      const label = id.length > 4 ? id.slice(0, 3) + '…' : id;
+      group.append(svgNode('text', {x: point.x, y: point.y + 5, fill: '#142a43', 'text-anchor': 'middle', 'font-size': 14, 'font-weight': 600}, label));
+      if (simulation.algorithm === 'dijkstra' && count <= 12) group.append(svgNode('text', {x: point.x, y: point.y + radius + 16, fill: '#142a43', 'text-anchor': 'middle', 'font-size': 12, 'font-weight': 600, 'paint-order': 'stroke', stroke: '#fff', 'stroke-width': 4}, 'd=' + formatDistance(distanceMap.get(id))));
+      svg.append(group);
+    }
+    container.replaceChildren(svg);
+  }
+  function pathTo(state, target) {
+    const distances = new Map(state.distances);
+    if (!Number.isFinite(distances.get(target))) return [];
+    const predecessors = new Map(state.predecessors);
+    const path = [];
+    const guard = new Set();
+    let current = target;
+    while (current !== undefined && !guard.has(current)) {
+      path.push(current);
+      if (current === simulation.origin) return path.reverse();
+      guard.add(current);
+      current = predecessors.get(current);
+    }
+    return [];
+  }
+  function render() {
+    const state = simulation.states[position];
+    const finished = position === simulation.states.length - 1;
+    $('step-counter').textContent = position === 0 ? 'Inicio' : (finished ? 'FINAL · ' : '') + 'Paso ' + position + ' / ' + (simulation.states.length - 1);
+    $('event-title').textContent = state.title;
+    $('event-detail').textContent = state.detail;
+    $('actual').textContent = state.actual || '—';
+    $('neighbor').textContent = state.neighbor || '—';
+    codeNodes.forEach((node, i) => {
+      const active = i + 1 === state.line;
+      node.classList.toggle('current', active);
+      if (active) node.setAttribute('aria-current', 'step'); else node.removeAttribute('aria-current');
+    });
+    $('previous').disabled = position === 0;
+    $('restart').disabled = position === 0;
+    $('next').disabled = finished;
+    $('next').textContent = finished ? 'Finalizado ✓' : 'Siguiente paso';
+    $('finish').disabled = finished;
+    $('finish').textContent = finished ? 'Resultado visible' : 'Ver resultado';
+    document.querySelector('.execution').classList.toggle('finished', finished);
+    $('completion-banner').hidden = !finished;
+    if (finished) {
+      if (simulation.algorithm === 'bfs') {
+        $('completion-summary').textContent = 'BFS termina porque la cola quedó vacía. Ya no existen vértices descubiertos pendientes de procesar.';
+      } else if (simulation.algorithm === 'recursive') {
+        $('completion-summary').textContent = 'DFS termina porque retornó la llamada del origen y la pila de llamadas quedó vacía.';
+      } else {
+        const unreachable = state.distances.filter(([, value]) => !Number.isFinite(value)).length;
+        $('completion-summary').textContent = activeExampleKey === 'professor' && simulation.origin === 'Q'
+          ? 'Dijkstra termina cuando Z queda fijado con costo 10. El simulador conserva Q → W → K → Z; Q → W → M → Z y Q → W → K → A → Z también cuestan 10.'
+          : unreachable
+            ? 'Dijkstra termina porque no quedan vértices alcanzables con distancia tentativa. Quedaron ' + unreachable + ' vértices inalcanzables con distancia ∞.'
+            : 'Dijkstra termina porque todos los vértices ya tienen una distancia mínima definitiva.';
+      }
+    }
+    renderParameters(state);
+    renderMemory(state);
+    collection($('visited'), state.visited, 'visited', state);
+    collection($('order'), state.order, 'order', state);
+    $('tree-count').textContent = state.treeEdges.length + (simulation.algorithm === 'dijkstra' ? ' predecesores' : ' aristas');
+    $('tree-edges').replaceChildren(...(state.treeEdges.length ? state.treeEdges.map((edge, i) => {
+      const isNew = (state.kind === 'edge' || state.kind === 'relax') && i === state.treeEdges.length - 1;
+      const node = element('span', undefined, 'token' + (isNew ? ' new' : ''));
+      node.setAttribute('aria-label', simulation.algorithm === 'dijkstra'
+        ? describe(edge.from) + ' es el predecesor actual de ' + describe(edge.to)
+        : describe(edge.from) + ' descubre a ' + describe(edge.to));
+      const weight = simulation.algorithm === 'dijkstra' && edge.weight !== undefined ? ' (' + edge.weight + ')' : '';
+      node.append(element('small', String(i + 1)), element('span', edge.from + ' → ' + edge.to + weight));
+      return node;
+    }) : [empty(simulation.algorithm === 'dijkstra' ? 'Sin predecesores asignados.' : 'Sin aristas: el origen no tiene padre.') ]));
+    $('neighbors-title').textContent = (simulation.algorithm === 'dijkstra' ? 'Vecinos para relajar' : 'Vecinos del for') + (state.actual ? ' · ' + state.actual : '');
+    $('local-neighbors').replaceChildren(...(state.loopNeighbors.length ? state.loopNeighbors.map((id, i) => {
+      const label = simulation.algorithm === 'dijkstra' ? id + ' · peso ' + graph.adjacency.get(state.actual).get(id) : id;
+      return element('span', label, 'token neighbor' + (i === state.loopIndex ? ' selected' : ''));
+    }) : [empty('Sin vecinos seleccionados.') ]));
+    if (simulation.algorithm === 'bfs') renderLevels(state);
+    if (simulation.algorithm === 'dijkstra') renderDistances(state);
+    $('result-panel').hidden = !finished;
+    $('paths-result').hidden = true;
+    $('paths-result').replaceChildren();
+    if (finished) {
+      if (simulation.algorithm === 'dijkstra') {
+        const distances = new Map(state.distances);
+        const reached = graph.ids.filter(id => Number.isFinite(distances.get(id)));
+        const unseen = graph.ids.filter(id => !Number.isFinite(distances.get(id)));
+        $('result-text').textContent = 'Origen: ' + simulation.origin + '. Se obtuvieron las distancias mínimas para ' + reached.length + ' de ' + graph.vertices.size + ' vértices.';
+        $('unreachable-text').textContent = unseen.length ? 'No alcanzables desde este origen: ' + unseen.join(', ') + '.' : 'Todos los vértices son alcanzables desde este origen.';
+        const table = element('table');
+        const thead = element('thead');
+        const header = element('tr');
+        ['Destino', 'Costo mínimo', 'Camino'].forEach(text => header.append(element('th', text)));
+        thead.append(header);
+        const tbody = element('tbody');
+        reached.forEach(id => {
+          const row = element('tr');
+          const pathCell = element('td');
+          pathCell.append(element('code', pathTo(state, id).join(' → ')));
+          row.append(element('td', describe(id)), element('td', formatDistance(distances.get(id))), pathCell);
+          tbody.append(row);
+        });
+        table.append(thead, tbody);
+        $('paths-result').append(table);
+        $('paths-result').hidden = false;
+      } else {
+        const unseen = graph.ids.filter(id => !state.visited.includes(id));
+        $('result-text').textContent = 'Origen: ' + simulation.origin + '. Alcanzados: ' + state.visited.length + ' de ' + graph.vertices.size + ' (incluye el origen). Árbol de descubrimiento: ' + state.treeEdges.length + ' aristas para ' + state.visited.length + ' vértices.';
+        $('unreachable-text').textContent = unseen.length ? 'No alcanzables desde este origen: ' + unseen.join(', ') + '.' : 'Todos los vértices son alcanzables desde este origen.';
+      }
+    }
+    renderGraph(state);
+  }
+  function move(delta) { position = Math.max(0, Math.min(simulation.states.length - 1, position + delta)); render(); }
+  $('previous').addEventListener('click', () => move(-1));
+  $('next').addEventListener('click', () => move(1));
+  $('restart').addEventListener('click', () => { position = 0; render(); });
+  $('finish').addEventListener('click', () => { position = simulation.states.length - 1; render(); });
+  $('algorithm').addEventListener('change', restartSimulation);
+  $('origin').addEventListener('change', restartSimulation);
+  $('call-picker').addEventListener('change', () => {
+    selectedCallId = $('call-picker').value === 'follow' ? null : Number($('call-picker').value);
+    render();
+  });
+  $('graph-form').addEventListener('submit', event => { event.preventDefault(); activeExampleKey = null; applyGraph(); });
+  $('load-example').addEventListener('click', () => loadExample($('example').value));
+  for (const id of ['vertices-input', 'edges-input', 'directed']) $(id).addEventListener('input', () => {
+    activeExampleKey = null;
+    pendingChanges = true;
+    $('editor-status').textContent = 'Hay cambios sin aplicar. La simulación actual sigue usando el último grafo válido.';
+  });
+  loadExample('professor');
+  if (typeof ResizeObserver !== 'undefined') new ResizeObserver(() => {
+    if (simulation) renderGraph(simulation.states[position]);
+  }).observe($('graph-drawing'));
+  const stateReadback = () => {
+    const state = simulation.states[position];
+    const displayedCall = callForDisplay(state);
+    return {algorithm: simulation.algorithm, origin: simulation.origin, step: position, totalSteps: simulation.states.length - 1,
+      line: state.line, instruction: state.title, actual: state.actual, neighbor: state.neighbor,
+      visited: [...state.visited], order: [...state.order], queueFrontToBack: [...state.queue],
+      callsBaseToTop: state.frames.map(frame => frame.actual),
+      discoveryEdges: state.treeEdges.map(edge => ({...edge})), parents: state.parents.map(pair => [...pair]),
+      distances: state.distances.map(([id, value]) => [id, Number.isFinite(value) ? value : null]),
+      predecessors: state.predecessors.map(pair => [...pair]), pendingVerticesByDistance: [...state.candidates],
+      edgeWeight: state.edgeWeight, alternative: state.alternative,
+      displayedCallId: displayedCall?.id || null, activeCallId: simulation.algorithm === 'recursive'
+        ? state.frames[state.frames.length - 1]?.callId || null
+        : state.calls[0]?.status === 'active' ? state.calls[0].id : null,
+      calls: state.calls.map(call => ({...call, received:{...call.received, visited:[...call.received.visited], order:[...call.received.order], treeEdges:call.received.treeEdges.map(edge => ({...edge}))}})),
+      pendingCall: state.pendingCall ? {...state.pendingCall} : null,
+      levels: state.levels.map(pair => [...pair]), hasUnappliedEdits: pendingChanges};
+  };
+  window.graphSimulator = Object.freeze({getState: stateReadback});
+  if (document.modelContext?.registerTool) {
+    const lifecycle = new AbortController();
+    const validate = input => { if (!input || typeof input !== 'object' || Array.isArray(input) || Object.keys(input).length) throw new Error('Se espera un objeto vacío.'); };
+    const schema = {type:'object', properties:{}, additionalProperties:false};
+    const tools = [
+      {name:'read_graph_traversal_state', description:'Lee la instrucción y las estructuras visibles de BFS, DFS o Dijkstra en la simulación actual.', inputSchema:schema, annotations:{readOnlyHint:true}, execute(input) { validate(input); return stateReadback(); }},
+      {name:'advance_graph_traversal_step', description:'Avanza una instrucción del algoritmo seleccionado y devuelve el mismo estado visible en pantalla.', inputSchema:schema, annotations:{readOnlyHint:false}, execute(input) { validate(input); move(1); return stateReadback(); }}
+    ];
+    for (const tool of tools) { try { Promise.resolve(document.modelContext.registerTool(tool, {signal:lifecycle.signal})).catch(() => {}); } catch { /* Soporte opcional. */ } }
+    window.addEventListener('pagehide', () => lifecycle.abort(), {once:true});
+  }
+})();
+
+</script>
+</body>
+</html>
