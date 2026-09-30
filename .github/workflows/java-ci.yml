@@ -1,19 +1,21 @@
-name: Java CI
+name: Proyecto CI
 
 on:
   push:
     branches: [ main ]
     paths:
       - "java/**"
+      - "simulador/**"
       - ".github/workflows/java-ci.yml"
   pull_request:
     branches: [ main ]
     paths:
       - "java/**"
+      - "simulador/**"
       - ".github/workflows/java-ci.yml"
 
 jobs:
-  test:
+  java:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -33,3 +35,31 @@ jobs:
 
       - name: Compilar y ejecutar pruebas
         run: mvn --batch-mode clean test
+
+  simulador:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extraer JavaScript del HTML
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          html = Path("simulador/index.html").read_text(encoding="utf-8")
+          scripts = re.findall(r"<script(?:\s[^>]*)?>(.*?)</script>", html, re.S)
+
+          if not scripts:
+              raise SystemExit("No se encontró JavaScript en simulador/index.html")
+
+          Path("/tmp/simulador.js").write_text(
+              "\n".join(scripts),
+              encoding="utf-8"
+          )
+          PY
+
+      - name: Verificar sintaxis JavaScript
+        run: node --check /tmp/simulador.js
