@@ -88,10 +88,14 @@ simulador/index.html
 ```
 
 No necesita servidor ni dependencias externas. Permite cargar grafos propios,
-elegir algoritmo y comparar BFS, DFS, Dijkstra, Prim y Kruskal. El ejemplo
-**Red asistencial** reproduce la red utilizada en clase, y la variante
-**Kruskal con ciclo** permite ver cómo Union-Find rechaza una arista que cerraría
-un ciclo.
+elegir algoritmo y comparar BFS, DFS, Dijkstra, Prim y Kruskal. Para cada
+algoritmo muestra un bloque de código didáctico y una ejecución paso a paso:
+se puede avanzar o retroceder por las iteraciones, observar cola, visitados,
+distancias, vértices incorporados o conjuntos de Union-Find y ver en el grafo
+las aristas aceptadas o rechazadas en ese instante. El ejemplo **Red
+asistencial** reproduce la red utilizada en clase, y la variante **Kruskal con
+ciclo** permite ver explícitamente cómo Union-Find detecta y rechaza una arista
+que cerraría un ciclo.
 
 ## Rama principal
 
