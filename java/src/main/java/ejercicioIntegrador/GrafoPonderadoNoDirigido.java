@@ -355,10 +355,6 @@ public class GrafoPonderadoNoDirigido {
                 cantidadVertices());
     }
 
-    /**
-     * Busca la arista de menor peso que sale del árbol actual
-     * hacia un vértice todavía no incorporado.
-     */
     private AristaPonderada buscarMenorAristaSalida(
             Set<String> incorporados) {
 
@@ -380,8 +376,8 @@ public class GrafoPonderadoNoDirigido {
                                         origen,
                                         destino));
 
-                if (esMejorCandidata(
-                        candidata, mejor)) {
+                if (compararAristas(
+                        candidata, mejor) < 0) {
                     mejor = candidata;
                 }
             }
@@ -390,37 +386,98 @@ public class GrafoPonderadoNoDirigido {
         return mejor;
     }
 
+    // =========================================================
+    // KRUSKAL
+    // =========================================================
+
     /**
-     * Desempate determinista para que las demostraciones y pruebas
-     * produzcan siempre la misma secuencia.
+     * Construye un árbol de expansión mínima sin depender de un vértice inicial.
+     *
+     * Kruskal ordena todas las aristas por peso y agrega cada una sólo si no
+     * genera un ciclo. Para detectar ciclos utiliza UnionFind.
      */
-    private boolean esMejorCandidata(
-            AristaPonderada candidata,
-            AristaPonderada actual) {
+    public ResultadoKruskal kruskal() {
 
-        if (actual == null) {
-            return true;
+        List<AristaPonderada> candidatas =
+                obtenerTodasLasAristas();
+
+        candidatas.sort(this::compararAristas);
+
+        UnionFind unionFind =
+                new UnionFind(obtenerVertices());
+
+        List<AristaPonderada> seleccionadas =
+                new ArrayList<>();
+
+        int costoTotal = 0;
+
+        for (AristaPonderada arista : candidatas) {
+            boolean uneComponentes =
+                    unionFind.union(
+                            arista.getOrigen(),
+                            arista.getDestino());
+
+            if (uneComponentes) {
+                seleccionadas.add(arista);
+                costoTotal += arista.getPeso();
+            }
+
+            if (seleccionadas.size()
+                    == cantidadVertices() - 1) {
+                break;
+            }
         }
 
-        if (candidata.getPeso()
-                != actual.getPeso()) {
+        return new ResultadoKruskal(
+                seleccionadas,
+                costoTotal,
+                cantidadVertices());
+    }
 
-            return candidata.getPeso()
-                    < actual.getPeso();
+    private List<AristaPonderada> obtenerTodasLasAristas() {
+
+        List<AristaPonderada> aristas = new ArrayList<>();
+
+        for (String origen : obtenerVertices()) {
+            for (String destino : obtenerVecinos(origen)) {
+                if (origen.compareTo(destino) < 0) {
+                    aristas.add(
+                            new AristaPonderada(
+                                    origen,
+                                    destino,
+                                    obtenerPeso(origen, destino)));
+                }
+            }
         }
 
-        int comparacionOrigen =
-                candidata.getOrigen()
-                        .compareTo(
-                                actual.getOrigen());
+        return aristas;
+    }
 
-        if (comparacionOrigen != 0) {
-            return comparacionOrigen < 0;
+    private int compararAristas(
+            AristaPonderada primera,
+            AristaPonderada segunda) {
+
+        if (segunda == null) {
+            return -1;
         }
 
-        return candidata.getDestino()
-                .compareTo(
-                        actual.getDestino()) < 0;
+        int porPeso = Integer.compare(
+                primera.getPeso(),
+                segunda.getPeso());
+
+        if (porPeso != 0) {
+            return porPeso;
+        }
+
+        int porOrigen = primera.getOrigen()
+                .compareTo(segunda.getOrigen());
+
+        if (porOrigen != 0) {
+            return porOrigen;
+        }
+
+        return primera.getDestino()
+                .compareTo(segunda.getDestino());
     }
 
     // =========================================================
