@@ -6,14 +6,32 @@
   <title>Simulador de grafos · BFS, DFS, Dijkstra, Prim y Kruskal</title>
   <style>
     :root{--azul:#12345b;--borde:#d7e1ed;--fondo:#f2f6fc;--verde:#166347;--ambar:#a35d06;--papel:#fff;--tinta:#142a43;--muted:#516479;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--tinta);background:var(--fondo)}
-    *{box-sizing:border-box} body{margin:0}.shell{max-width:1200px;margin:auto;padding:28px} h1{margin:0 0 6px;font-size:clamp(1.8rem,3vw,2.6rem)} h2{margin:0 0 12px;font-size:1.1rem}.sub{color:var(--muted);margin:0 0 18px}.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}.card{background:var(--papel);border:1px solid var(--borde);border-radius:14px;padding:18px;box-shadow:0 6px 18px rgba(18,52,91,.06)}label{display:grid;gap:7px;font-weight:650;margin-bottom:12px}textarea,select,input{width:100%;border:1px solid var(--borde);border-radius:9px;padding:10px;font:inherit;background:#fff}textarea{min-height:190px;font-family:Consolas,monospace;line-height:1.45}.row{display:flex;gap:10px;flex-wrap:wrap;align-items:end}.row>*{flex:1;min-width:160px}button{border:0;border-radius:9px;padding:11px 14px;font-weight:700;cursor:pointer}.primary{background:var(--azul);color:#fff}.secondary{background:#e9f0f8;color:var(--azul)}.result{white-space:pre-wrap;background:#102840;color:#e8f2ff;border-radius:12px;padding:14px;min-height:220px;line-height:1.5;overflow:auto}.pill{display:inline-block;border-radius:999px;padding:5px 9px;background:#eaf2ff;color:var(--azul);font-size:.86rem;font-weight:700}.note{border-left:4px solid var(--ambar);padding:10px 12px;background:#fff4d6;border-radius:8px;color:#553203}.ok{border-left-color:var(--verde);background:#e8f5ee;color:#0e5139}.table{width:100%;border-collapse:collapse;margin-top:8px}.table th,.table td{border-bottom:1px solid var(--borde);padding:8px;text-align:left;vertical-align:top}.graph{min-height:280px}.edge{stroke:#789;stroke-width:2}.edge.sel{stroke:var(--verde);stroke-width:5}.edge.reject{stroke:#b3232d;stroke-width:4;stroke-dasharray:8 5}.node{fill:#eef4fb;stroke:#789;stroke-width:2}.node.sel{fill:#ccead8;stroke:var(--verde)}.label{font-weight:700;font-size:14px;text-anchor:middle;dominant-baseline:middle}.w{font-size:12px;fill:#333;font-weight:700}.small{font-size:.9rem;color:var(--muted)}@media(max-width:850px){.grid{grid-template-columns:1fr}.shell{padding:18px}}
+    *{box-sizing:border-box} body{margin:0}.shell{max-width:1200px;margin:auto;padding:28px} h1{margin:0 0 6px;font-size:clamp(1.8rem,3vw,2.6rem)} h2{margin:0 0 12px;font-size:1.1rem}.sub{color:var(--muted);margin:0 0 18px}.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px}.card{background:var(--papel);border:1px solid var(--borde);border-radius:14px;padding:18px;box-shadow:0 6px 18px rgba(18,52,91,.06)}label{display:grid;gap:7px;font-weight:650;margin-bottom:12px}textarea,select,input{width:100%;border:1px solid var(--borde);border-radius:9px;padding:10px;font:inherit;background:#fff}textarea{min-height:190px;font-family:Consolas,monospace;line-height:1.45}.row{display:flex;gap:10px;flex-wrap:wrap;align-items:end}.row>*{flex:1;min-width:160px}button{border:0;border-radius:9px;padding:11px 14px;font-weight:700;cursor:pointer}.primary{background:var(--azul);color:#fff}.secondary{background:#e9f0f8;color:var(--azul)}.result{white-space:pre-wrap;background:#102840;color:#e8f2ff;border-radius:12px;padding:14px;min-height:220px;line-height:1.5;overflow:auto}.pill{display:inline-block;border-radius:999px;padding:5px 9px;background:#eaf2ff;color:var(--azul);font-size:.86rem;font-weight:700}.note{border-left:4px solid var(--ambar);padding:10px 12px;background:#fff4d6;border-radius:8px;color:#553203}.ok{border-left-color:var(--verde);background:#e8f5ee;color:#0e5139}.table{width:100%;border-collapse:collapse;margin-top:8px}.table th,.table td{border-bottom:1px solid var(--borde);padding:8px;text-align:left;vertical-align:top}.graph{min-height:280px}.edge{stroke:#789;stroke-width:2}.edge.sel{stroke:var(--verde);stroke-width:5}.edge.reject{stroke:#b3232d;stroke-width:4;stroke-dasharray:8 5}.node{fill:#eef4fb;stroke:#789;stroke-width:2}.node.sel{fill:#ccead8;stroke:var(--verde)}.label{font-weight:700;font-size:14px;text-anchor:middle;dominant-baseline:middle}.w{font-size:12px;fill:#333;font-weight:700}.small{font-size:.9rem;color:var(--muted)}
+.didactic{margin-top:18px}
+.didactic-head{display:flex;justify-content:space-between;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.didactic-head h2{margin:0}
+.step-controls{display:flex;gap:8px;flex-wrap:wrap}
+.step-controls button{min-width:92px}
+.step-counter{font-weight:800;color:var(--azul);padding:9px 11px;background:#eaf2ff;border-radius:9px}
+.didactic-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}
+.codebox{margin:0;padding:12px 12px 12px 52px;background:#102840;color:#e8f2ff;border-radius:12px;min-height:330px;overflow:auto;font:14px/1.55 Consolas,"SFMono-Regular",monospace}
+.codebox li{padding:2px 7px;white-space:pre-wrap;border-left:4px solid transparent}
+.codebox li.active{background:#214f7b;border-left-color:#6fc8ff;color:#fff;font-weight:700}
+.codebox li::marker{color:#96abc0}
+.step-card{min-height:330px;border:1px solid var(--borde);border-radius:12px;padding:16px;background:#fbfdff}
+.step-title{font-size:1.05rem;font-weight:800;color:var(--azul);margin-bottom:8px}
+.step-text{line-height:1.55;margin:0 0 12px}
+.state{white-space:pre-wrap;overflow:auto;margin:0;background:#f1f5fa;border:1px solid var(--borde);border-radius:9px;padding:12px;min-height:155px;font:14px/1.5 Consolas,"SFMono-Regular",monospace;color:#20364d}
+.step-hint{margin-top:12px}
+@media(max-width:850px){.didactic-grid{grid-template-columns:1fr}.codebox,.step-card{min-height:auto}}
+@media(max-width:850px){.grid{grid-template-columns:1fr}.shell{padding:18px}}
   </style>
 </head>
 <body>
 <div class="shell">
   <p class="pill">Algoritmos y Estructuras de Datos III</p>
   <h1>Simulador de grafos</h1>
-  <p class="sub">Compara BFS, DFS, Dijkstra, Prim y Kruskal sobre la misma red. Kruskal no solicita vértice inicial.</p>
+  <p class="sub">Compara BFS, DFS, Dijkstra, Prim y Kruskal sobre la misma red. Ahora cada algoritmo muestra su código didáctico y permite avanzar instrucción por instrucción para observar cómo cambian sus estructuras internas.</p>
 
   <div class="grid">
     <section class="card">
@@ -75,6 +93,38 @@
       <p class="note ok">Idea clave: Dijkstra busca el mejor camino. Prim y Kruskal buscan la mejor red.</p>
     </section>
   </div>
+
+  <section class="card didactic">
+    <div class="didactic-head">
+      <div>
+        <h2>Código e iteración paso a paso</h2>
+        <p class="small" style="margin:5px 0 0">El código mostrado cambia con el algoritmo. Cada paso resalta la instrucción que se está ejecutando y el estado de las estructuras auxiliares.</p>
+      </div>
+      <div class="step-controls">
+        <button class="secondary" id="stepReset">Inicio</button>
+        <button class="secondary" id="stepPrev">← Anterior</button>
+        <span class="step-counter" id="stepCounter">Paso 1 / 1</span>
+        <button class="primary" id="stepNext">Siguiente →</button>
+        <button class="secondary" id="stepEnd">Final</button>
+      </div>
+    </div>
+
+    <div class="didactic-grid">
+      <div>
+        <h2 id="codeTitle">Código de ejemplo</h2>
+        <ol id="codeBox" class="codebox"></ol>
+      </div>
+      <div>
+        <h2>Qué está ocurriendo</h2>
+        <div class="step-card">
+          <div id="stepTitle" class="step-title"></div>
+          <p id="stepText" class="step-text"></p>
+          <pre id="stepState" class="state"></pre>
+          <p class="small step-hint">Verde: aristas ya aceptadas. Rojo discontinuo: arista rechazada por ciclo. El grafo se actualiza con cada paso.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 </div>
 
 <script>
@@ -84,11 +134,116 @@ const ejemplos={
 };
 const pos={CC:[250,55],CN:[95,145],G:[420,145],L:[250,165],DI:[135,265],CS:[385,265]};
 const $=id=>document.getElementById(id);
+const CODIGO={
+  bfs:[
+    'Queue<String> cola = new ArrayDeque<>();',
+    'Set<String> visitados = new LinkedHashSet<>();',
+    'cola.add(origen); visitados.add(origen);',
+    'while (!cola.isEmpty()) {',
+    '    String actual = cola.remove();',
+    '    for (String vecino : obtenerVecinos(actual)) {',
+    '        if (!visitados.contains(vecino)) {',
+    '            visitados.add(vecino);',
+    '            cola.add(vecino);',
+    '        }',
+    '    }',
+    '}'
+  ],
+  dfs:[
+    'private void dfs(String actual, Set<String> visitados) {',
+    '    visitados.add(actual);',
+    '    for (String vecino : obtenerVecinos(actual)) {',
+    '        if (!visitados.contains(vecino)) {',
+    '            dfs(vecino, visitados);',
+    '        }',
+    '    }',
+    '}'
+  ],
+  dijkstra:[
+    'distancias.put(origen, 0);',
+    'while (quedenVerticesNoVisitados) {',
+    '    String actual = menorNoVisitado(distancias, visitados);',
+    '    visitados.add(actual);',
+    '    for (String vecino : obtenerVecinos(actual)) {',
+    '        int alternativa = distancias.get(actual) + peso(actual, vecino);',
+    '        if (alternativa < distancias.get(vecino)) {',
+    '            distancias.put(vecino, alternativa);',
+    '            predecesores.put(vecino, actual);',
+    '        }',
+    '    }',
+    '}'
+  ],
+  prim:[
+    'Set<String> incorporados = new LinkedHashSet<>();',
+    'incorporados.add(origen);',
+    'while (incorporados.size() < cantidadVertices()) {',
+    '    AristaPonderada menor = buscarMenorAristaSalida(incorporados);',
+    '    if (menor == null) break;',
+    '    aristas.add(menor);',
+    '    costoTotal += menor.getPeso();',
+    '    incorporados.add(menor.getDestino());',
+    '}'
+  ],
+  kruskal:[
+    'List<AristaPonderada> aristas = obtenerTodasLasAristas();',
+    'ordenarPorPeso(aristas);',
+    'UnionFind conjuntos = new UnionFind(obtenerVertices());',
+    'for (AristaPonderada arista : aristas) {',
+    '    String raizA = conjuntos.find(arista.getOrigen());',
+    '    String raizB = conjuntos.find(arista.getDestino());',
+    '    if (!raizA.equals(raizB)) {',
+    '        seleccionadas.add(arista);',
+    '        conjuntos.union(raizA, raizB);',
+    '        costoTotal += arista.getPeso();',
+    '    } // si las raíces coinciden, formaría un ciclo',
+    '    if (seleccionadas.size() == cantidadVertices() - 1) break;',
+    '}'
+  ]
+};
+let resultadoActual=null;
+let pasoActual=0;
+
+function crearPaso(titulo,texto,estado,linea,sel=[],rej=[]){
+  return {titulo,texto,estado,linea,sel:[...sel],rej:[...rej]};
+}
+
+function mostrarCodigo(algoritmo,lineaActiva=0){
+  const caja=$('codeBox');
+  caja.innerHTML='';
+  $('codeTitle').textContent='Código de ejemplo · '+algoritmo.toUpperCase();
+  (CODIGO[algoritmo]||[]).forEach((linea,i)=>{
+    const li=document.createElement('li');
+    li.textContent=linea;
+    if(i+1===lineaActiva) li.className='active';
+    caja.appendChild(li);
+  });
+}
+
+function mostrarPaso(){
+  if(!resultadoActual||!resultadoActual.steps||resultadoActual.steps.length===0) return;
+  pasoActual=Math.max(0,Math.min(pasoActual,resultadoActual.steps.length-1));
+  const p=resultadoActual.steps[pasoActual];
+  $('stepCounter').textContent='Paso '+(pasoActual+1)+' / '+resultadoActual.steps.length;
+  $('stepTitle').textContent=p.titulo;
+  $('stepText').textContent=p.texto;
+  $('stepState').textContent=p.estado;
+  mostrarCodigo($('algo').value,p.linea);
+  dibujar(resultadoActual.g,p.sel||[],p.rej||[]);
+  $('stepPrev').disabled=pasoActual===0;
+  $('stepReset').disabled=pasoActual===0;
+  $('stepNext').disabled=pasoActual===resultadoActual.steps.length-1;
+  $('stepEnd').disabled=pasoActual===resultadoActual.steps.length-1;
+}
+
 $('edges').value=ejemplos.red;
 $('example').onchange=()=>{$('edges').value=ejemplos[$('example').value]; ejecutar();};
 $('load').onclick=e=>{e.preventDefault(); $('edges').value=ejemplos[$('example').value]; ejecutar();};
-$('algo').onchange=()=>{const a=$('algo').value; $('originBox').style.display=a==='kruskal'?'none':'grid'; $('destBox').style.display=a==='dijkstra'?'grid':'none';};
+$('algo').onchange=()=>{const a=$('algo').value; $('originBox').style.display=a==='kruskal'?'none':'grid'; $('destBox').style.display=a==='dijkstra'?'grid':'none'; ejecutar();};
 $('run').onclick=ejecutar;
+$('stepPrev').onclick=()=>{pasoActual--; mostrarPaso();};
+$('stepNext').onclick=()=>{pasoActual++; mostrarPaso();};
+$('stepReset').onclick=()=>{pasoActual=0; mostrarPaso();};
+$('stepEnd').onclick=()=>{if(resultadoActual){pasoActual=resultadoActual.steps.length-1; mostrarPaso();}};
 
 function leerGrafo(){
   const adj=new Map(), aristas=[];
@@ -104,14 +259,248 @@ function leerGrafo(){
 }
 function vecinos(g,v){return [...(g.adj.get(v)||new Map()).entries()].sort((a,b)=>a[0].localeCompare(b[0]));}
 function validar(g,v){if(!g.adj.has(v)) throw new Error(`El vértice ${v} no existe`)}
-function bfs(g,o){validar(g,o); const q=[o], vis=new Set([o]), rec=[], niv=[[o]], ars=[]; const nivel=new Map([[o,0]]); while(q.length){const a=q.shift(); rec.push(a); for(const [b] of vecinos(g,a)){if(!vis.has(b)){vis.add(b); q.push(b); ars.push(`${a}-${b}`); const n=nivel.get(a)+1; nivel.set(b,n); (niv[n]??=[]).push(b)}}} return {txt:`BFS desde ${o}\nRecorrido: ${rec.join(' → ')}\nNiveles:\n`+niv.map((x,i)=>`  Nivel ${i}: ${x.join(', ')}`).join('\n')+`\nAristas: ${ars.join(', ')}`, sel:ars}}
-function dfs(g,o){validar(g,o); const vis=new Set(), rec=[], ars=[]; function go(a){vis.add(a); rec.push(a); for(const [b] of vecinos(g,a)){if(!vis.has(b)){ars.push(`${a}-${b}`); go(b)}}} go(o); return {txt:`DFS desde ${o}\nRecorrido: ${rec.join(' → ')}\nAristas: ${ars.join(', ')}`, sel:ars}}
-function dijkstra(g,o,d){validar(g,o); validar(g,d); const dist=new Map(), pred=new Map(), fijos=new Set(); for(const v of [...g.adj.keys()].sort()) dist.set(v,Infinity); dist.set(o,0); while(fijos.size<g.adj.size){let u=null,b=Infinity; for(const [v,x] of dist) if(!fijos.has(v)&&x<b){u=v;b=x} if(u===null) break; fijos.add(u); for(const [v,w] of vecinos(g,u)){if(!fijos.has(v)&&dist.get(u)+w<dist.get(v)){dist.set(v,dist.get(u)+w); pred.set(v,u)}}} const cam=[]; if(Number.isFinite(dist.get(d))){for(let x=d;x;x=pred.get(x)){cam.unshift(x); if(x===o) break}} const ars=[]; for(let i=0;i<cam.length-1;i++) ars.push(`${cam[i]}-${cam[i+1]}`); return {txt:`Dijkstra desde ${o}\nDistancias:\n`+[...dist].map(([v,x])=>`  ${v}: ${x===Infinity?'∞':x}`).join('\n')+`\n\nCamino ${o} → ${d}: ${cam.join(' → ')||'sin camino'}\nCosto: ${dist.get(d)}`, sel:ars}}
-function prim(g,o){validar(g,o); const inc=new Set([o]), sel=[], out=[]; let costo=0; while(inc.size<g.adj.size){let best=null; for(const a of inc){for(const [b,w] of vecinos(g,a)){if(!inc.has(b)){const e={a,b,w}; if(!best||cmp(e,best)<0) best=e}}} if(!best) break; inc.add(best.b); sel.push(`${best.a}-${best.b}`); out.push(`${best.a}-${best.b} (${best.w})`); costo+=best.w} return {txt:`Prim desde ${o}\nAristas aceptadas:\n  ${out.join('\n  ')||'(sin aristas)'}\nCosto total: ${costo}\n${sel.length===g.adj.size-1?'MST completo':'Grafo desconectado'}`, sel}}
-class UF{constructor(vs){this.p=new Map(vs.map(v=>[v,v]))} find(x){while(this.p.get(x)!==x)x=this.p.get(x);return x} union(a,b){a=this.find(a);b=this.find(b);if(a===b)return false;this.p.set(b,a);return true}}
-function kruskal(g){const uf=new UF([...g.adj.keys()]); const ars=g.aristas.map(e=>e.a.localeCompare(e.b)<0?e:{a:e.b,b:e.a,w:e.w}).sort(cmp); const sel=[], out=[], rej=[]; let costo=0; for(const e of ars){if(uf.union(e.a,e.b)){sel.push(`${e.a}-${e.b}`); out.push(`${e.a}-${e.b} (${e.w})`); costo+=e.w; if(sel.length===g.adj.size-1) break}else{rej.push(`${e.a}-${e.b}`)}} return {txt:`Kruskal\nNo depende de un vértice inicial.\nOrdena todas las aristas y usa Union-Find para evitar ciclos.\n\nAristas aceptadas:\n  ${out.join('\n  ')||'(sin aristas)'}\nCosto total: ${costo}\nRechazadas por ciclo: ${rej.join(', ')||'ninguna'}\n${sel.length===g.adj.size-1?'MST completo':'Grafo desconectado'}`, sel, rej}}
+function bfs(g,o){
+  validar(g,o);
+  const q=[o], vis=new Set([o]), rec=[], niv=[[o]], ars=[], nivel=new Map([[o,0]]);
+  const steps=[crearPaso(
+    'Inicialización',
+    'BFS marca el origen y lo coloca en la cola FIFO.',
+    'cola = ['+q.join(', ')+']\nvisitados = {'+[...vis].join(', ')+'}\nrecorrido = []',
+    3,ars
+  )];
+
+  while(q.length){
+    const a=q.shift();
+    rec.push(a);
+    steps.push(crearPaso(
+      'Extraer '+a+' de la cola',
+      'Se procesa el primer elemento de la cola. Todos sus vecinos se revisarán antes de avanzar al siguiente nivel.',
+      'actual = '+a+'\ncola = ['+q.join(', ')+']\nrecorrido = ['+rec.join(', ')+']',
+      5,ars
+    ));
+
+    for(const [b] of vecinos(g,a)){
+      steps.push(crearPaso(
+        'Examinar vecino '+b,
+        vis.has(b)?b+' ya estaba visitado: no se vuelve a encolar.':b+' todavía no fue visitado.',
+        'actual = '+a+'\nvecino = '+b+'\nvisitados = {'+[...vis].join(', ')+'}',
+        7,ars
+      ));
+      if(!vis.has(b)){
+        vis.add(b); q.push(b); ars.push(a+'-'+b);
+        const n=nivel.get(a)+1; nivel.set(b,n); (niv[n]??=[]).push(b);
+        steps.push(crearPaso(
+          'Descubrir '+b,
+          b+' se marca como visitado y entra al final de la cola.',
+          'cola = ['+q.join(', ')+']\nvisitados = {'+[...vis].join(', ')+'}\nnivel('+b+') = '+n,
+          9,ars
+        ));
+      }
+    }
+  }
+  steps.push(crearPaso('BFS finalizado','La cola quedó vacía: terminó el recorrido por niveles.','recorrido = ['+rec.join(', ')+']\nniveles = '+niv.map((x,i)=>i+': ['+x.join(', ')+']').join(' | '),12,ars));
+  return {txt:'BFS desde '+o+'\nRecorrido: '+rec.join(' → ')+'\nNiveles:\n'+niv.map((x,i)=>'  Nivel '+i+': '+x.join(', ')).join('\n')+'\nAristas: '+ars.join(', '), sel:ars, steps};
+}
+
+function dfs(g,o){
+  validar(g,o);
+  const vis=new Set(), rec=[], ars=[], steps=[];
+  function go(a,prof){
+    vis.add(a); rec.push(a);
+    steps.push(crearPaso(
+      'Entrar a DFS('+a+')',
+      'DFS avanza por una rama antes de regresar. Profundidad actual: '+prof+'.',
+      'visitados = {'+[...vis].join(', ')+'}\nrecorrido = ['+rec.join(', ')+']\nprofundidad = '+prof,
+      2,ars
+    ));
+    for(const [b] of vecinos(g,a)){
+      steps.push(crearPaso(
+        'Examinar '+a+' → '+b,
+        vis.has(b)?b+' ya fue visitado; se continúa con el siguiente vecino.':'El vecino '+b+' está libre: se realiza la llamada recursiva.',
+        'actual = '+a+'\nvecino = '+b+'\nvisitado? '+vis.has(b),
+        4,ars
+      ));
+      if(!vis.has(b)){
+        ars.push(a+'-'+b);
+        steps.push(crearPaso('Llamada recursiva','Se suspende DFS('+a+') y comienza DFS('+b+').','pila lógica: profundidad '+prof+' → '+(prof+1),5,ars));
+        go(b,prof+1);
+      }
+    }
+    steps.push(crearPaso('Retornar desde '+a,'No quedan vecinos nuevos para '+a+'. Se vuelve a la llamada anterior.','retorno desde DFS('+a+')\nrecorrido parcial = ['+rec.join(', ')+']',7,ars));
+  }
+  go(o,0);
+  return {txt:'DFS desde '+o+'\nRecorrido: '+rec.join(' → ')+'\nAristas: '+ars.join(', '), sel:ars, steps};
+}
+
+function dijkstra(g,o,d){
+  validar(g,o); validar(g,d);
+  const dist=new Map(), pred=new Map(), fijos=new Set(), steps=[];
+  for(const v of [...g.adj.keys()].sort()) dist.set(v,Infinity);
+  dist.set(o,0);
+  const estado=()=>[...dist].map(([v,x])=>v+'='+(x===Infinity?'∞':x)+(fijos.has(v)?' ✓':'')).join('  ');
+  const predEdges=()=>[...pred].map(([v,p])=>p+'-'+v);
+
+  steps.push(crearPaso('Inicialización','El origen vale 0 y el resto comienza en infinito.','distancias: '+estado()+'\npredecesores: {}',1,[]));
+
+  while(fijos.size<g.adj.size){
+    let u=null,b=Infinity;
+    for(const [v,x] of dist) if(!fijos.has(v)&&x<b){u=v;b=x}
+    if(u===null) break;
+
+    steps.push(crearPaso('Elegir menor no visitado','El próximo vértice fijo será '+u+' con distancia '+b+'.','distancias: '+estado()+'\nelegido = '+u,3,predEdges()));
+    fijos.add(u);
+    steps.push(crearPaso('Fijar '+u,'Su menor distancia queda confirmada.','visitados/fijos = {'+[...fijos].join(', ')+'}\ndistancias: '+estado(),4,predEdges()));
+
+    for(const [v,w] of vecinos(g,u)){
+      if(fijos.has(v)) continue;
+      const alt=dist.get(u)+w;
+      const antes=dist.get(v);
+      steps.push(crearPaso('Probar '+u+' → '+v,'Se compara '+(antes===Infinity?'∞':antes)+' contra '+dist.get(u)+' + '+w+' = '+alt+'.','vecino = '+v+'\nalternativa = '+alt+'\ndistancia actual = '+(antes===Infinity?'∞':antes),6,predEdges()));
+      if(alt<antes){
+        dist.set(v,alt); pred.set(v,u);
+        steps.push(crearPaso('Relajar '+v,'La alternativa mejora la distancia: se actualizan distancia y predecesor.','distancia('+v+') = '+alt+'\npredecesor('+v+') = '+u+'\ndistancias: '+estado(),9,predEdges()));
+      }
+    }
+  }
+
+  const cam=[];
+  if(Number.isFinite(dist.get(d))){
+    for(let x=d;x;x=pred.get(x)){cam.unshift(x);if(x===o)break}
+  }
+  const ars=[]; for(let i=0;i<cam.length-1;i++) ars.push(cam[i]+'-'+cam[i+1]);
+  steps.push(crearPaso('Dijkstra finalizado','Se reconstruye el camino solicitado usando los predecesores.','camino '+o+' → '+d+' = '+(cam.join(' → ')||'sin camino')+'\ncosto = '+(dist.get(d)===Infinity?'∞':dist.get(d)),12,ars));
+
+  return {txt:'Dijkstra desde '+o+'\nDistancias:\n'+[...dist].map(([v,x])=>'  '+v+': '+(x===Infinity?'∞':x)).join('\n')+'\n\nCamino '+o+' → '+d+': '+(cam.join(' → ')||'sin camino')+'\nCosto: '+(dist.get(d)===Infinity?'∞':dist.get(d)), sel:ars, steps};
+}
+
+function prim(g,o){
+  validar(g,o);
+  const inc=new Set([o]), sel=[], out=[], steps=[]; let costo=0;
+  steps.push(crearPaso('Inicialización','Prim sí parte de un vértice. El árbol comienza únicamente con '+o+'.','incorporados = {'+o+'}\ncosto = 0',2,sel));
+
+  while(inc.size<g.adj.size){
+    let best=null, candidatas=[];
+    for(const a of inc){
+      for(const [b,w] of vecinos(g,a)){
+        if(!inc.has(b)){
+          const e={a,b,w}; candidatas.push(e);
+          if(!best||cmp(e,best)<0) best=e;
+        }
+      }
+    }
+    steps.push(crearPaso(
+      'Buscar la menor arista de salida',
+      best?'Se comparan sólo aristas que salen del árbol hacia un vértice no incorporado. La menor es '+best.a+'-'+best.b+' ('+best.w+').':'No existe una arista de salida.',
+      'incorporados = {'+[...inc].join(', ')+'}\ncandidatas = '+candidatas.sort(cmp).map(e=>e.a+'-'+e.b+'('+e.w+')').join(', '),
+      4,sel
+    ));
+    if(!best) break;
+    inc.add(best.b); sel.push(best.a+'-'+best.b); out.push(best.a+'-'+best.b+' ('+best.w+')'); costo+=best.w;
+    steps.push(crearPaso('Aceptar '+best.a+'-'+best.b,'La arista incorpora un nuevo vértice al único árbol que Prim está haciendo crecer.','incorporados = {'+[...inc].join(', ')+'}\ncosto = '+costo+'\naristas = ['+out.join(', ')+']',8,sel));
+  }
+  steps.push(crearPaso('Prim finalizado',sel.length===g.adj.size-1?'Hay V-1 aristas: el MST está completo.':'La red está desconectada.','costo total = '+costo+'\naristas seleccionadas = '+sel.length,9,sel));
+  return {txt:'Prim desde '+o+'\nAristas aceptadas:\n  '+(out.join('\n  ')||'(sin aristas)')+'\nCosto total: '+costo+'\n'+(sel.length===g.adj.size-1?'MST completo':'Grafo desconectado'), sel, steps};
+}
+
+class UF{
+  constructor(vs){this.p=new Map(vs.map(v=>[v,v]))}
+  find(x){while(this.p.get(x)!==x)x=this.p.get(x);return x}
+  union(a,b){a=this.find(a);b=this.find(b);if(a===b)return false;this.p.set(b,a);return true}
+  snapshot(){
+    const grupos=new Map();
+    for(const v of [...this.p.keys()].sort()){
+      const r=this.find(v);
+      if(!grupos.has(r)) grupos.set(r,[]);
+      grupos.get(r).push(v);
+    }
+    return [...grupos.values()].map(g=>'{'+g.join(', ')+'}').join('  ');
+  }
+}
+
+function kruskal(g){
+  const uf=new UF([...g.adj.keys()]);
+  const ars=g.aristas.map(e=>e.a.localeCompare(e.b)<0?e:{a:e.b,b:e.a,w:e.w}).sort(cmp);
+  const sel=[], out=[], rej=[], steps=[]; let costo=0;
+
+  steps.push(crearPaso(
+    'Ordenar todas las aristas',
+    'Kruskal no necesita origen. Primero ordena globalmente todas las conexiones de menor a mayor peso.',
+    'orden = '+ars.map(e=>e.a+'-'+e.b+'('+e.w+')').join(' < ')+'\nconjuntos = '+uf.snapshot(),
+    2,sel,rej
+  ));
+  steps.push(crearPaso(
+    'Crear Union-Find',
+    'Al comienzo cada vértice pertenece a su propio conjunto.',
+    'conjuntos = '+uf.snapshot(),
+    3,sel,rej
+  ));
+
+  for(const e of ars){
+    const ra=uf.find(e.a), rb=uf.find(e.b);
+    steps.push(crearPaso(
+      'Evaluar '+e.a+'-'+e.b+' ('+e.w+')',
+      'Se comparan las raíces de sus extremos. Si son distintas, la arista une dos componentes; si son iguales, cerraría un ciclo.',
+      'find('+e.a+') = '+ra+'\nfind('+e.b+') = '+rb+'\nconjuntos = '+uf.snapshot(),
+      6,sel,rej
+    ));
+
+    if(ra!==rb){
+      sel.push(e.a+'-'+e.b); out.push(e.a+'-'+e.b+' ('+e.w+')'); costo+=e.w;
+      uf.union(ra,rb);
+      steps.push(crearPaso(
+        'Aceptar '+e.a+'-'+e.b,
+        'Las raíces eran distintas. La arista se incorpora y Union-Find fusiona ambos componentes.',
+        'seleccionadas = ['+out.join(', ')+']\ncosto = '+costo+'\nconjuntos = '+uf.snapshot(),
+        10,sel,rej
+      ));
+      if(sel.length===g.adj.size-1){
+        steps.push(crearPaso('MST completo','Ya hay V-1 aristas. Kruskal puede detenerse sin depender de ningún vértice inicial.','V = '+g.adj.size+'\naristas = '+sel.length+'\ncosto total = '+costo,12,sel,rej));
+        break;
+      }
+    }else{
+      rej.push(e.a+'-'+e.b);
+      steps.push(crearPaso(
+        'Rechazar '+e.a+'-'+e.b,
+        'Ambos extremos ya pertenecen al mismo componente. Agregar esta arista formaría un ciclo.',
+        'raíces iguales = '+ra+'\nRECHAZADA por ciclo\nconjuntos = '+uf.snapshot(),
+        11,sel,rej
+      ));
+    }
+  }
+
+  if(sel.length!==g.adj.size-1){
+    steps.push(crearPaso('Kruskal finalizado','No fue posible obtener V-1 aristas: el grafo está desconectado.','costo total = '+costo+'\nseleccionadas = '+sel.length,13,sel,rej));
+  }
+
+  return {txt:'Kruskal\nNo depende de un vértice inicial.\nOrdena todas las aristas y usa Union-Find para evitar ciclos.\n\nAristas aceptadas:\n  '+(out.join('\n  ')||'(sin aristas)')+'\nCosto total: '+costo+'\nRechazadas por ciclo: '+(rej.join(', ')||'ninguna')+'\n'+(sel.length===g.adj.size-1?'MST completo':'Grafo desconectado'), sel, rej, steps};
+}
 function cmp(x,y){return x.w-y.w||x.a.localeCompare(y.a)||x.b.localeCompare(y.b)}
-function ejecutar(){try{const g=leerGrafo(); const a=$('algo').value, o=$('origin').value.trim().toUpperCase(), d=$('dest').value.trim().toUpperCase(); let r; if(a==='bfs')r=bfs(g,o); if(a==='dfs')r=dfs(g,o); if(a==='dijkstra')r=dijkstra(g,o,d); if(a==='prim')r=prim(g,o); if(a==='kruskal')r=kruskal(g); $('result').textContent=r.txt; dibujar(g,r.sel||[],r.rej||[])}catch(e){$('result').textContent='ERROR: '+e.message}}
+function ejecutar(){
+  try{
+    const g=leerGrafo();
+    const a=$('algo').value;
+    const o=$('origin').value.trim().toUpperCase();
+    const d=$('dest').value.trim().toUpperCase();
+    let r;
+    if(a==='bfs') r=bfs(g,o);
+    if(a==='dfs') r=dfs(g,o);
+    if(a==='dijkstra') r=dijkstra(g,o,d);
+    if(a==='prim') r=prim(g,o);
+    if(a==='kruskal') r=kruskal(g);
+    r.g=g;
+    resultadoActual=r;
+    pasoActual=0;
+    $('result').textContent=r.txt;
+    mostrarPaso();
+  }catch(e){
+    resultadoActual=null;
+    $('result').textContent='ERROR: '+e.message;
+    $('stepTitle').textContent='No se pudo ejecutar';
+    $('stepText').textContent=e.message;
+    $('stepState').textContent='';
+    mostrarCodigo($('algo').value,0);
+  }
+}
 function norm(e){const [a,b]=e.split('-'); return [a,b].sort().join('-')}
 function dibujar(g,sel=[],rej=[]){const s=new Set(sel.map(norm)), r=new Set(rej.map(norm)); const svg=$('svg'); svg.innerHTML=''; for(const e of g.aristas){const p1=pos[e.a]||rand(e.a), p2=pos[e.b]||rand(e.b), key=norm(`${e.a}-${e.b}`); const line=el('line',{x1:p1[0],y1:p1[1],x2:p2[0],y2:p2[1],class:`edge ${s.has(key)?'sel':''} ${r.has(key)?'reject':''}`}); svg.appendChild(line); const mx=(p1[0]+p2[0])/2,my=(p1[1]+p2[1])/2; svg.appendChild(el('text',{x:mx,y:my-5,class:'w'},e.w))} for(const v of g.adj.keys()){const p=pos[v]||rand(v); svg.appendChild(el('circle',{cx:p[0],cy:p[1],r:25,class:'node'})); svg.appendChild(el('text',{x:p[0],y:p[1],class:'label'},v))}}
 function rand(v){let n=[...v].reduce((a,c)=>a+c.charCodeAt(0),0);return [70+(n*47)%420,70+(n*83)%220]}
