@@ -8,7 +8,7 @@ import java.util.Scanner;
 
 /**
  * Aplicación de consola para construir una red asistencial ponderada
- * y comparar BFS, DFS, Dijkstra y Prim sobre el mismo grafo.
+ * y comparar BFS, DFS, Dijkstra, Prim y Kruskal sobre el mismo grafo.
  */
 public class App {
 
@@ -37,11 +37,13 @@ public class App {
 
                 mostrarDijkstra(grafo, origen, destino);
                 mostrarPrim(grafo, origen);
+                mostrarKruskal(grafo);
 
                 System.out.println(
                         "\nResumen conceptual: BFS/DFS recorren; "
-                        + "Dijkstra minimiza un camino; "
-                        + "Prim minimiza el costo total de conectar la red.");
+                        + "Dijkstra minimiza un camino desde un origen; "
+                        + "Prim minimiza una red desde un vértice inicial; "
+                        + "Kruskal minimiza la red sin depender de un vértice.");
 
                 continuar = leerSiNo(
                         teclado,
@@ -242,16 +244,7 @@ public class App {
         System.out.println(
                 "Aristas del árbol de expansión mínima:");
 
-        if (resultado.getAristas().isEmpty()) {
-            System.out.println("(sin aristas)");
-        } else {
-            int numero = 1;
-            for (AristaPonderada arista : resultado.getAristas()) {
-                System.out.println(
-                        numero + ". " + arista);
-                numero++;
-            }
-        }
+        mostrarAristasPonderadas(resultado.getAristas());
 
         System.out.println(
                 "Costo total: "
@@ -270,6 +263,53 @@ public class App {
                     + " de "
                     + resultado.getCantidadVerticesTotales()
                     + " vértices.");
+        }
+    }
+
+    private static void mostrarKruskal(
+            GrafoPonderadoNoDirigido grafo) {
+
+        ResultadoKruskal resultado = grafo.kruskal();
+
+        System.out.println("\n=== KRUSKAL ===");
+        System.out.println(
+                "Kruskal no solicita origen: ordena todas las aristas "
+                + "y evita ciclos con Union-Find.");
+        System.out.println(
+                "Aristas del árbol de expansión mínima:");
+
+        mostrarAristasPonderadas(resultado.getAristas());
+
+        System.out.println(
+                "Costo total: "
+                + resultado.getCostoTotal()
+                + " minutos");
+
+        if (resultado.esArbolExpansionCompleto()) {
+            System.out.println(
+                    "MST completo: "
+                    + resultado.getAristas().size()
+                    + " = V - 1 aristas.");
+        } else {
+            System.out.println(
+                    "La red está desconectada: Kruskal devolvió un bosque "
+                    + "de expansión mínima.");
+        }
+    }
+
+    private static void mostrarAristasPonderadas(
+            List<AristaPonderada> aristas) {
+
+        if (aristas.isEmpty()) {
+            System.out.println("(sin aristas)");
+            return;
+        }
+
+        int numero = 1;
+        for (AristaPonderada arista : aristas) {
+            System.out.println(
+                    numero + ". " + arista);
+            numero++;
         }
     }
 
