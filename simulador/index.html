@@ -10,16 +10,16 @@
 </head>
 <body><div class="shell">
 <p class="pill">Algoritmos y Estructuras de Datos III</p><h1>Simulador de grafos</h1><p class="sub">Compara BFS, DFS, Dijkstra, Prim, Kruskal y Floyd-Warshall. En Floyd-Warshall se puede ver el triple for completo con sus 64 comparaciones en el ejemplo A-B-C-D.</p>
-<div class="grid"><section class="card"><h2>Entrada</h2><label>Ejemplo<select id="example"><option value="red">Red asistencial</option><option value="ciclo">Variante Kruskal con ciclo</option><option value="floyd">Floyd manual A-B-C-D</option></select></label><label>Aristas: origen destino peso<textarea id="edges"></textarea></label><div class="row"><label>Algoritmo<select id="algo"><option value="bfs">BFS</option><option value="dfs">DFS</option><option value="dijkstra">Dijkstra</option><option value="prim">Prim</option><option value="kruskal">Kruskal</option><option value="floyd">Floyd-Warshall</option></select></label><label id="originBox">Origen<input id="origin" value="G"></label><label id="destBox">Destino<input id="dest" value="DI"></label></div><div class="row"><button class="primary" id="run">Ejecutar</button><button class="secondary" id="load">Cargar ejemplo</button></div><p class="small">BFS/DFS no usan pesos. Dijkstra usa un origen. Prim usa un origen para crecer. Kruskal y Floyd-Warshall no piden origen.</p></section><section class="card"><h2>Resultado</h2><div id="result" class="result"></div></section></div>
+<div class="grid"><section class="card"><h2>Entrada</h2><label>Ejemplo<select id="example"><option value="red">Red asistencial</option><option value="ciclo">Variante Kruskal con ciclo</option><option value="floyd">Floyd manual A-B-C-D</option></select></label><label>Aristas: origen destino peso<textarea id="edges"></textarea></label><div class="row"><label>Algoritmo<select id="algo"><option value="bfs">BFS</option><option value="dfs">DFS</option><option value="dijkstra">Dijkstra</option><option value="prim">Prim</option><option value="kruskal">Kruskal</option><option value="floyd">Floyd-Warshall</option></select></label><label id="originBox">Origen<input id="origin" value="G"></label><label id="destBox">Destino<input id="dest" value="DI"></label></div><div class="row"><button class="primary" id="run">Ejecutar</button><button class="secondary" id="load">Cargar ejemplo</button></div><p class="small">BFS/DFS no usan pesos. Dijkstra usa un origen. Prim usa un origen para crecer. Kruskal no pide origen. Floyd-Warshall calcula todos contra todos; origen y destino se usan sólo para reconstruir un camino al final.</p></section><section class="card"><h2>Resultado</h2><div id="result" class="result"></div></section></div>
 <div class="grid" style="margin-top:18px"><section class="card graph"><h2>Grafo</h2><svg id="svg" viewBox="0 0 560 330" width="100%" height="330" role="img"></svg></section><section class="card"><h2>Cómo elegir el algoritmo</h2><table class="table"><tr><th>Pregunta</th><th>Algoritmo</th></tr><tr><td>Recorrer por niveles</td><td>BFS</td></tr><tr><td>Explorar ramas/conectividad</td><td>DFS</td></tr><tr><td>Camino mínimo desde un origen</td><td>Dijkstra</td></tr><tr><td>Camino mínimo entre todos los pares</td><td>Floyd-Warshall</td></tr><tr><td>Conectar toda la red desde un vértice</td><td>Prim</td></tr><tr><td>Conectar toda la red ordenando aristas</td><td>Kruskal</td></tr></table><p class="note ok">Idea clave: primero identificamos la pregunta del problema; después elegimos el algoritmo.</p></section></div>
-<section class="card didactic"><div class="didactic-head"><div><h2>Código e iteración paso a paso</h2><p class="small" style="margin:5px 0 0">El código mostrado cambia con el algoritmo. Cada paso resalta la línea conceptual que se está ejecutando y muestra el estado interno.</p></div><div class="step-controls"><button class="secondary" id="stepReset">Inicio</button><button class="secondary" id="stepPrev">← Anterior</button><span class="step-counter" id="stepCounter">Paso 1 / 1</span><button class="primary" id="stepNext">Siguiente →</button><button class="secondary" id="stepEnd">Final</button></div></div><div class="didactic-grid"><div><h2 id="codeTitle">Código de ejemplo</h2><ol id="codeBox" class="codebox"></ol></div><div><h2>Qué está ocurriendo</h2><div class="step-card"><div id="stepTitle" class="step-title"></div><p id="stepText" class="step-text"></p><pre id="stepState" class="state"></pre><p class="small">En Floyd-Warshall: k es el posible intermediario, i es el origen y j el destino. Se comparan dist[i][j] contra dist[i][k] + dist[k][j].</p></div></div></div></section></div>
+<section class="card didactic"><div class="didactic-head"><div><h2>Código e iteración paso a paso</h2><p class="small" style="margin:5px 0 0">El código mostrado cambia con el algoritmo. Cada paso resalta la línea conceptual que se está ejecutando y muestra el estado interno.</p></div><div class="step-controls"><button class="secondary" id="stepReset">Inicio</button><button class="secondary" id="stepPrev">← Anterior</button><span class="step-counter" id="stepCounter">Paso 1 / 1</span><button class="primary" id="stepNext">Siguiente →</button><button class="secondary" id="stepEnd">Final</button></div></div><div class="didactic-grid"><div><h2 id="codeTitle">Código de ejemplo</h2><ol id="codeBox" class="codebox"></ol></div><div><h2>Qué está ocurriendo</h2><div class="step-card"><div id="stepTitle" class="step-title"></div><p id="stepText" class="step-text"></p><pre id="stepState" class="state"></pre><p class="small">En Floyd-Warshall: dist[][] guarda costos mínimos y siguiente[][] guarda el próximo vértice que hay que tomar para reconstruir el camino. En cada una de las 64 comparaciones se muestran ambas matrices.</p></div></div></div></section></div>
 <script>
 const ejemplos={red:`CC CN 12\nCC L 5\nCC G 4\nCN L 8\nCN DI 15\nL DI 7\nL CS 10\nDI CS 6\nG CS 9`,ciclo:`CC CN 12\nCC L 5\nCC G 4\nCN L 8\nCN DI 15\nL DI 7\nL CS 10\nDI CS 6\nG CS 2`,floyd:`A B 3\nB C 2\nC D 1\nA D 10`};
 const pos={CC:[250,55],CN:[95,145],G:[420,145],L:[250,165],DI:[135,265],CS:[385,265],A:[115,75],B:[445,75],C:[445,255],D:[115,255]};
 const $=id=>document.getElementById(id),INF=Infinity;
-const CODIGO={bfs:['Queue<String> cola = new ArrayDeque<>();','Set<String> visitados = new LinkedHashSet<>();','cola.add(origen); visitados.add(origen);','while (!cola.isEmpty()) {','    String actual = cola.remove();','    for (String vecino : obtenerVecinos(actual)) {','        if (!visitados.contains(vecino)) {','            visitados.add(vecino);','            cola.add(vecino);','        }','    }','}'],dfs:['private void dfs(String actual) {','    visitados.add(actual);','    for (String vecino : obtenerVecinos(actual)) {','        if (!visitados.contains(vecino)) {','            dfs(vecino);','        }','    }','}'],dijkstra:['distancias.put(origen, 0);','while (quedenVerticesNoVisitados) {','    actual = menorNoVisitado(distancias);','    visitados.add(actual);','    for (vecino : obtenerVecinos(actual)) {','        alternativa = dist[actual] + peso(actual, vecino);','        if (alternativa < dist[vecino]) {','            dist[vecino] = alternativa;','            predecesor[vecino] = actual;','        }','    }','}'],prim:['incorporados.add(origen);','while (incorporados.size() < V) {','    menor = buscarMenorAristaSalida(incorporados);','    if (menor == null) break;','    aristas.add(menor);','    costoTotal += menor.getPeso();','    incorporados.add(menor.getDestino());','}'],kruskal:['aristas = obtenerTodasLasAristas();','ordenarPorPeso(aristas);','UnionFind conjuntos = new UnionFind(vertices);','for (arista : aristas) {','    raizA = find(arista.origen);','    raizB = find(arista.destino);','    if (raizA != raizB) {','        aceptar(arista);','        union(raizA, raizB);','    } else {','        rechazar por ciclo;','    }','}'],floyd:['for (int k = 0; k < n; k++) {','    for (int i = 0; i < n; i++) {','        for (int j = 0; j < n; j++) {','            if (dist[i][k] != INF && dist[k][j] != INF) {','                alternativa = dist[i][k] + dist[k][j];','                if (alternativa < dist[i][j]) {','                    dist[i][j] = alternativa;','                }','            }','        }','    }','}']};
+const CODIGO={bfs:['Queue<String> cola = new ArrayDeque<>();','Set<String> visitados = new LinkedHashSet<>();','cola.add(origen); visitados.add(origen);','while (!cola.isEmpty()) {','    String actual = cola.remove();','    for (String vecino : obtenerVecinos(actual)) {','        if (!visitados.contains(vecino)) {','            visitados.add(vecino);','            cola.add(vecino);','        }','    }','}'],dfs:['private void dfs(String actual) {','    visitados.add(actual);','    for (String vecino : obtenerVecinos(actual)) {','        if (!visitados.contains(vecino)) {','            dfs(vecino);','        }','    }','}'],dijkstra:['distancias.put(origen, 0);','while (quedenVerticesNoVisitados) {','    actual = menorNoVisitado(distancias);','    visitados.add(actual);','    for (vecino : obtenerVecinos(actual)) {','        alternativa = dist[actual] + peso(actual, vecino);','        if (alternativa < dist[vecino]) {','            dist[vecino] = alternativa;','            predecesor[vecino] = actual;','        }','    }','}'],prim:['incorporados.add(origen);','while (incorporados.size() < V) {','    menor = buscarMenorAristaSalida(incorporados);','    if (menor == null) break;','    aristas.add(menor);','    costoTotal += menor.getPeso();','    incorporados.add(menor.getDestino());','}'],kruskal:['aristas = obtenerTodasLasAristas();','ordenarPorPeso(aristas);','UnionFind conjuntos = new UnionFind(vertices);','for (arista : aristas) {','    raizA = find(arista.origen);','    raizB = find(arista.destino);','    if (raizA != raizB) {','        aceptar(arista);','        union(raizA, raizB);','    } else {','        rechazar por ciclo;','    }','}'],floyd:['inicializar dist[][] y siguiente[][];','for (int k = 0; k < n; k++) {','    for (int i = 0; i < n; i++) {','        for (int j = 0; j < n; j++) {','            if (dist[i][k] != INF && dist[k][j] != INF) {','                alternativa = dist[i][k] + dist[k][j];','                if (alternativa < dist[i][j]) {','                    dist[i][j] = alternativa;','                    siguiente[i][j] = siguiente[i][k];','                }','            }','        }','    }','}']};
 let resultadoActual=null,pasoActual=0;function crearPaso(titulo,texto,estado,linea,sel=[],rej=[],focus=[]){return{titulo,texto,estado,linea,sel:[...sel],rej:[...rej],focus:[...focus]}}function mostrarCodigo(a,linea=0){const caja=$('codeBox');caja.innerHTML='';$('codeTitle').textContent='Código de ejemplo · '+a.toUpperCase();(CODIGO[a]||[]).forEach((txt,i)=>{const li=document.createElement('li');li.textContent=txt;if(i+1===linea)li.className='active';caja.appendChild(li)})}function mostrarPaso(){if(!resultadoActual?.steps?.length)return;pasoActual=Math.max(0,Math.min(pasoActual,resultadoActual.steps.length-1));const p=resultadoActual.steps[pasoActual];$('stepCounter').textContent='Paso '+(pasoActual+1)+' / '+resultadoActual.steps.length;$('stepTitle').textContent=p.titulo;$('stepText').textContent=p.texto;$('stepState').textContent=p.estado;mostrarCodigo($('algo').value,p.linea);dibujar(resultadoActual.g,p.sel||[],p.rej||[],p.focus||[]);$('stepPrev').disabled=pasoActual===0;$('stepReset').disabled=pasoActual===0;$('stepNext').disabled=pasoActual===resultadoActual.steps.length-1;$('stepEnd').disabled=pasoActual===resultadoActual.steps.length-1}
-$('edges').value=ejemplos.red;$('example').onchange=()=>{const e=$('example').value;$('edges').value=ejemplos[e];if(e==='floyd'){$('algo').value='floyd';$('origin').value='A';$('dest').value='D'}ejecutar()};$('load').onclick=e=>{e.preventDefault();$('example').dispatchEvent(new Event('change'))};$('algo').onchange=()=>{const a=$('algo').value;$('originBox').style.display=(a==='kruskal'||a==='floyd')?'none':'grid';$('destBox').style.display=a==='dijkstra'?'grid':'none';ejecutar()};$('run').onclick=ejecutar;$('stepPrev').onclick=()=>{pasoActual--;mostrarPaso()};$('stepNext').onclick=()=>{pasoActual++;mostrarPaso()};$('stepReset').onclick=()=>{pasoActual=0;mostrarPaso()};$('stepEnd').onclick=()=>{if(resultadoActual){pasoActual=resultadoActual.steps.length-1;mostrarPaso()}};
+$('edges').value=ejemplos.red;$('example').onchange=()=>{const e=$('example').value;$('edges').value=ejemplos[e];if(e==='floyd'){$('algo').value='floyd';$('origin').value='A';$('dest').value='D'}ejecutar()};$('load').onclick=e=>{e.preventDefault();$('example').dispatchEvent(new Event('change'))};$('algo').onchange=()=>{const a=$('algo').value;$('originBox').style.display=a==='kruskal'?'none':'grid';$('destBox').style.display=(a==='dijkstra'||a==='floyd')?'grid':'none';ejecutar()};$('run').onclick=ejecutar;$('stepPrev').onclick=()=>{pasoActual--;mostrarPaso()};$('stepNext').onclick=()=>{pasoActual++;mostrarPaso()};$('stepReset').onclick=()=>{pasoActual=0;mostrarPaso()};$('stepEnd').onclick=()=>{if(resultadoActual){pasoActual=resultadoActual.steps.length-1;mostrarPaso()}};
 function leerGrafo(){const adj=new Map(),aristas=[];const add=v=>{if(!adj.has(v))adj.set(v,new Map())};for(const[i,linea]of $('edges').value.split(/\n+/).entries()){const t=linea.trim();if(!t)continue;const p=t.split(/\s+/);if(p.length!==3)throw new Error(`Línea ${i+1}: usar origen destino peso`);const[a,b]=p,w=Number(p[2]);if(!Number.isFinite(w)||w<=0)throw new Error(`Línea ${i+1}: peso inválido`);add(a);add(b);adj.get(a).set(b,w);adj.get(b).set(a,w);aristas.push({a,b,w})}return{adj,aristas}}function vertices(g){return[...g.adj.keys()].sort((a,b)=>a.localeCompare(b))}function vecinos(g,v){return[...(g.adj.get(v)||new Map()).entries()].sort((a,b)=>a[0].localeCompare(b[0]))}function validar(g,v){if(!g.adj.has(v))throw new Error(`El vértice ${v} no existe`)}
 function bfs(g,o){validar(g,o);const q=[o],vis=new Set([o]),rec=[],nivel=new Map([[o,0]]),niv=[[o]],sel=[],steps=[crearPaso('Inicialización','BFS marca el origen y lo coloca en la cola FIFO.','cola = ['+q+']\nvisitados = {'+[...vis]+'}',3,sel)];while(q.length){const a=q.shift();rec.push(a);steps.push(crearPaso('Extraer '+a,'Se procesa el primer elemento de la cola.',`actual = ${a}\ncola = [${q}]\nrecorrido = [${rec}]`,5,sel));for(const[b]of vecinos(g,a)){steps.push(crearPaso('Examinar '+a+' → '+b,vis.has(b)?'Ya estaba visitado.':'No estaba visitado: se descubre.',`visitados = {${[...vis]}}`,7,sel,[],[`${a}-${b}`]));if(!vis.has(b)){vis.add(b);q.push(b);sel.push(a+'-'+b);const n=nivel.get(a)+1;nivel.set(b,n);(niv[n]??=[]).push(b);steps.push(crearPaso('Descubrir '+b,'Se marca, entra a la cola y queda en el nivel '+n+'.',`cola = [${q}]\nvisitados = {${[...vis]}}\nnivel(${b}) = ${n}`,9,sel))}}}steps.push(crearPaso('BFS finalizado','La cola está vacía.','recorrido = ['+rec+']\nniveles = '+niv.map((x,i)=>i+': ['+x+']').join(' | '),12,sel));return{txt:'BFS desde '+o+'\nRecorrido: '+rec.join(' → ')+'\nNiveles:\n'+niv.map((x,i)=>'  Nivel '+i+': '+x.join(', ')).join('\n'),sel,steps}}
 function dfs(g,o){validar(g,o);const vis=new Set(),rec=[],sel=[],steps=[];function go(a,prof){vis.add(a);rec.push(a);steps.push(crearPaso('Entrar a DFS('+a+')','DFS avanza por una rama antes de regresar.',`profundidad = ${prof}\nvisitados = {${[...vis]}}\nrecorrido = [${rec}]`,2,sel));for(const[b]of vecinos(g,a)){steps.push(crearPaso('Examinar '+a+' → '+b,vis.has(b)?'Ya visitado.':'Llamada recursiva.',`actual = ${a}\nvecino = ${b}`,4,sel,[],[`${a}-${b}`]));if(!vis.has(b)){sel.push(a+'-'+b);go(b,prof+1)}}steps.push(crearPaso('Retornar desde '+a,'No quedan vecinos nuevos para este vértice.',`retorno desde DFS(${a})`,7,sel))}go(o,0);return{txt:'DFS desde '+o+'\nRecorrido: '+rec.join(' → ')+'\nAristas: '+sel.join(', '),sel,steps}}
@@ -27,7 +27,138 @@ function dijkstra(g,o,d){validar(g,o);validar(g,d);const dist=new Map(),pred=new
 function prim(g,o){validar(g,o);const inc=new Set([o]),sel=[],out=[],steps=[];let costo=0;steps.push(crearPaso('Inicialización','Prim parte de un vértice inicial.','incorporados = {'+o+'}',1,sel));while(inc.size<g.adj.size){let best=null,cand=[];for(const a of inc){for(const[b,w]of vecinos(g,a)){if(!inc.has(b)){const e={a,b,w};cand.push(e);if(!best||cmp(e,best)<0)best=e}}}steps.push(crearPaso('Buscar menor arista de salida',best?'Menor candidata: '+best.a+'-'+best.b+' ('+best.w+').':'No hay salida.',`incorporados = {${[...inc]}}\ncandidatas = ${cand.sort(cmp).map(e=>e.a+'-'+e.b+'('+e.w+')').join(', ')}`,3,sel));if(!best)break;inc.add(best.b);sel.push(best.a+'-'+best.b);out.push(best.a+'-'+best.b+' ('+best.w+')');costo+=best.w;steps.push(crearPaso('Aceptar '+best.a+'-'+best.b,'La arista incorpora un nuevo vértice al árbol.',`incorporados = {${[...inc]}}\ncosto = ${costo}`,7,sel))}return{txt:'Prim desde '+o+'\nAristas aceptadas:\n  '+(out.join('\n  ')||'(sin aristas)')+'\nCosto total: '+costo,sel,steps}}
 class UF{constructor(vs){this.p=new Map(vs.map(v=>[v,v]))}find(x){while(this.p.get(x)!==x)x=this.p.get(x);return x}union(a,b){a=this.find(a);b=this.find(b);if(a===b)return false;this.p.set(b,a);return true}snapshot(){const grupos=new Map();for(const v of [...this.p.keys()].sort()){const r=this.find(v);if(!grupos.has(r))grupos.set(r,[]);grupos.get(r).push(v)}return[...grupos.values()].map(x=>'{'+x.join(', ')+'}').join('  ')}}
 function kruskal(g){const uf=new UF(vertices(g)),ars=g.aristas.map(e=>e.a.localeCompare(e.b)<0?e:{a:e.b,b:e.a,w:e.w}).sort(cmp),sel=[],rej=[],out=[],steps=[];let costo=0;steps.push(crearPaso('Ordenar aristas','Kruskal no necesita origen. Ordena todas las aristas por peso.','orden = '+ars.map(e=>e.a+'-'+e.b+'('+e.w+')').join(' < ')+'\nconjuntos = '+uf.snapshot(),2,sel,rej));for(const e of ars){const ra=uf.find(e.a),rb=uf.find(e.b);steps.push(crearPaso('Evaluar '+e.a+'-'+e.b,`find(${e.a})=${ra}; find(${e.b})=${rb}.`,uf.snapshot(),6,sel,rej,[`${e.a}-${e.b}`]));if(ra!==rb){sel.push(e.a+'-'+e.b);out.push(e.a+'-'+e.b+' ('+e.w+')');costo+=e.w;uf.union(ra,rb);steps.push(crearPaso('Aceptar '+e.a+'-'+e.b,'Une dos componentes diferentes.','seleccionadas = ['+out.join(', ')+']\ncosto = '+costo+'\nconjuntos = '+uf.snapshot(),9,sel,rej));if(sel.length===g.adj.size-1)break}else{rej.push(e.a+'-'+e.b);steps.push(crearPaso('Rechazar '+e.a+'-'+e.b,'Los extremos ya estaban conectados: formaría ciclo.',uf.snapshot(),11,sel,rej))}}return{txt:'Kruskal\nAristas aceptadas:\n  '+(out.join('\n  ')||'(sin aristas)')+'\nCosto total: '+costo+'\nRechazadas por ciclo: '+(rej.join(', ')||'ninguna'),sel,rej,steps}}
-function floyd(g){const vs=vertices(g),n=vs.length,idx=new Map(vs.map((v,i)=>[v,i])),dist=Array.from({length:n},()=>Array(n).fill(INF));for(let i=0;i<n;i++)dist[i][i]=0;for(const e of g.aristas){const a=idx.get(e.a),b=idx.get(e.b);dist[a][b]=Math.min(dist[a][b],e.w);dist[b][a]=Math.min(dist[b][a],e.w)}const steps=[];let comparacion=0,updates=[];for(let k=0;k<n;k++){for(let i=0;i<n;i++){for(let j=0;j<n;j++){comparacion++;const antes=dist[i][j],dik=dist[i][k],dkj=dist[k][j],posible=Number.isFinite(dik)&&Number.isFinite(dkj),alt=posible?dik+dkj:INF,mejora=posible&&alt<antes;const titulo=`Comparación ${comparacion}/${n*n*n} · k=${vs[k]}, i=${vs[i]}, j=${vs[j]}`;const texto=`Se compara dist[${vs[i]}][${vs[j]}] contra dist[${vs[i]}][${vs[k]}] + dist[${vs[k]}][${vs[j]}].`+(mejora?' Hay mejora y se actualiza la celda.':' No mejora.');let estado=`k = ${vs[k]}  |  i = ${vs[i]}  |  j = ${vs[j]}\n\nactual dist[${vs[i]}][${vs[j]}] = ${fmt(antes)}\npor ${vs[k]}: ${fmt(dik)} + ${fmt(dkj)} = ${fmt(alt)}\nresultado: ${mejora?fmt(antes)+' → '+fmt(alt):'sin cambio'}\n\nMatriz actual:\n${matrizTexto(vs,dist)}`;if(mejora){dist[i][j]=alt;updates.push(`${vs[i]}-${vs[j]}: ${fmt(antes)}→${fmt(alt)} vía ${vs[k]}`);estado+=`\n\nActualización aplicada: dist[${vs[i]}][${vs[j]}] = ${fmt(alt)}`;}steps.push(crearPaso(titulo,texto,estado,mejora?7:5,[],[],[`${vs[i]}-${vs[k]}`,`${vs[k]}-${vs[j]}`]))}}}const txt='Floyd-Warshall\nCalcula caminos mínimos entre todos los pares.\n\nMatriz final:\n'+matrizTexto(vs,dist)+'\nActualizaciones reales:\n'+(updates.join('\n')||'ninguna');return{txt,steps,sel:[],rej:[]}}
-function matrizTexto(vs,m){const ancho=5;let s=''.padStart(ancho)+vs.map(v=>v.padStart(ancho)).join('')+'\n';for(let i=0;i<vs.length;i++){s+=vs[i].padStart(ancho);for(let j=0;j<vs.length;j++)s+=fmt(m[i][j]).padStart(ancho);s+='\n'}return s}function fmt(x){return x===INF?'∞':String(x)}function cmp(x,y){return x.w-y.w||x.a.localeCompare(y.a)||x.b.localeCompare(y.b)}
+function floyd(g){
+  const vs=vertices(g),n=vs.length,idx=new Map(vs.map((v,i)=>[v,i]));
+  const dist=Array.from({length:n},()=>Array(n).fill(INF));
+  const next=Array.from({length:n},()=>Array(n).fill(-1));
+
+  for(let i=0;i<n;i++){
+    dist[i][i]=0;
+    next[i][i]=i;
+  }
+
+  for(const e of g.aristas){
+    const a=idx.get(e.a),b=idx.get(e.b);
+    if(e.w<dist[a][b]){
+      dist[a][b]=e.w;
+      next[a][b]=b;
+    }
+    if(e.w<dist[b][a]){
+      dist[b][a]=e.w;
+      next[b][a]=a;
+    }
+  }
+
+  const steps=[];
+  let comparacion=0;
+  const updates=[];
+
+  for(let k=0;k<n;k++){
+    for(let i=0;i<n;i++){
+      for(let j=0;j<n;j++){
+        comparacion++;
+
+        const antes=dist[i][j];
+        const dik=dist[i][k];
+        const dkj=dist[k][j];
+        const posible=Number.isFinite(dik)&&Number.isFinite(dkj);
+        const alt=posible?dik+dkj:INF;
+        const mejora=posible&&alt<antes;
+
+        let detalleSiguiente='sin cambio';
+        if(mejora){
+          dist[i][j]=alt;
+          next[i][j]=next[i][k];
+          detalleSiguiente='siguiente['+vs[i]+']['+vs[j]+'] = '+(next[i][j]===-1?'—':vs[next[i][j]]);
+          updates.push(vs[i]+'-'+vs[j]+': '+fmt(antes)+'→'+fmt(alt)+' vía '+vs[k]);
+        }
+
+        const titulo='Comparación '+comparacion+'/'+(n*n*n)+' · k='+vs[k]+', i='+vs[i]+', j='+vs[j];
+        const texto='Se compara dist['+vs[i]+']['+vs[j]+'] contra dist['+vs[i]+']['+vs[k]+'] + dist['+vs[k]+']['+vs[j]+'].'+
+          (mejora?' Hay mejora: además de la distancia se actualiza la matriz siguiente.':' No mejora.');
+
+        const estado=
+          'k = '+vs[k]+'  |  i = '+vs[i]+'  |  j = '+vs[j]+'\n\n'+
+          'distancia anterior = '+fmt(antes)+'\n'+
+          'por '+vs[k]+': '+fmt(dik)+' + '+fmt(dkj)+' = '+fmt(alt)+'\n'+
+          'resultado = '+(mejora?fmt(antes)+' → '+fmt(alt):'sin cambio')+'\n'+
+          'matriz siguiente = '+detalleSiguiente+'\n\n'+
+          'MATRIZ DISTANCIAS\n'+matrizTexto(vs,dist)+'\n'+
+          'MATRIZ SIGUIENTE\n'+matrizSiguienteTexto(vs,next);
+
+        steps.push(crearPaso(
+          titulo,
+          texto,
+          estado,
+          mejora?9:6,
+          [],
+          [],
+          [vs[i]+'-'+vs[k],vs[k]+'-'+vs[j]]
+        ));
+      }
+    }
+  }
+
+  const origen=$('origin').value.trim().toUpperCase();
+  const destino=$('dest').value.trim().toUpperCase();
+  let camino=[];
+  let caminoEdges=[];
+  let costo=INF;
+
+  if(idx.has(origen)&&idx.has(destino)){
+    camino=reconstruirFloyd(vs,next,idx.get(origen),idx.get(destino));
+    costo=dist[idx.get(origen)][idx.get(destino)];
+    for(let p=0;p<camino.length-1;p++) caminoEdges.push(camino[p]+'-'+camino[p+1]);
+  }
+
+  if(steps.length){
+    const ult=steps[steps.length-1];
+    ult.texto+=' Al terminar las 64 comparaciones ya podemos reconstruir un camino concreto usando la matriz siguiente.';
+    ult.estado+='\n\nRECONSTRUCCIÓN '+origen+' → '+destino+
+      '\ncamino = '+(camino.length?camino.join(' → '):'sin camino')+
+      '\ncosto = '+fmt(costo);
+    ult.sel=caminoEdges;
+    ult.focus=[];
+  }
+
+  const txt='Floyd-Warshall\nCalcula caminos mínimos entre todos los pares.\n\n'+
+    'Matriz final de distancias:\n'+matrizTexto(vs,dist)+'\n'+
+    'Matriz final siguiente:\n'+matrizSiguienteTexto(vs,next)+'\n'+
+    'Consulta '+origen+' → '+destino+':\n'+
+    'Camino mínimo: '+(camino.length?camino.join(' → '):'sin camino')+'\n'+
+    'Costo: '+fmt(costo)+'\n\n'+
+    'Actualizaciones reales:\n'+(updates.join('\n')||'ninguna');
+
+  return{txt,steps,sel:caminoEdges,rej:[],dist,next};
+}
+
+function reconstruirFloyd(vs,next,origen,destino){
+  if(next[origen][destino]===-1)return[];
+  const camino=[vs[origen]];
+  let actual=origen;
+  let guard=0;
+  while(actual!==destino&&guard<=vs.length){
+    actual=next[actual][destino];
+    if(actual===-1)return[];
+    camino.push(vs[actual]);
+    guard++;
+  }
+  return actual===destino?camino:[];
+}
+
+function matrizTexto(vs,m){const ancho=5;let s=''.padStart(ancho)+vs.map(v=>v.padStart(ancho)).join('')+'\n';for(let i=0;i<vs.length;i++){s+=vs[i].padStart(ancho);for(let j=0;j<vs.length;j++)s+=fmt(m[i][j]).padStart(ancho);s+='\n'}return s}function matrizSiguienteTexto(vs,m){
+  const ancho=5;
+  let s=''.padStart(ancho)+vs.map(v=>v.padStart(ancho)).join('')+'\n';
+  for(let i=0;i<vs.length;i++){
+    s+=vs[i].padStart(ancho);
+    for(let j=0;j<vs.length;j++){
+      const valor=m[i][j]===-1?'—':vs[m[i][j]];
+      s+=String(valor).padStart(ancho);
+    }
+    s+='\n';
+  }
+  return s;
+}
+function fmt(x){return x===INF?'∞':String(x)}function cmp(x,y){return x.w-y.w||x.a.localeCompare(y.a)||x.b.localeCompare(y.b)}
 function ejecutar(){try{const g=leerGrafo(),a=$('algo').value,o=$('origin').value.trim().toUpperCase(),d=$('dest').value.trim().toUpperCase();let r;if(a==='bfs')r=bfs(g,o);if(a==='dfs')r=dfs(g,o);if(a==='dijkstra')r=dijkstra(g,o,d);if(a==='prim')r=prim(g,o);if(a==='kruskal')r=kruskal(g);if(a==='floyd')r=floyd(g);r.g=g;resultadoActual=r;pasoActual=0;$('result').textContent=r.txt;mostrarPaso()}catch(e){resultadoActual=null;$('result').textContent='ERROR: '+e.message;$('stepTitle').textContent='No se pudo ejecutar';$('stepText').textContent=e.message;$('stepState').textContent='';mostrarCodigo($('algo').value,0)}}function norm(e){const[a,b]=e.split('-');return[a,b].sort().join('-')}function dibujar(g,sel=[],rej=[],focus=[]){const s=new Set(sel.map(norm)),r=new Set(rej.map(norm)),f=new Set(focus.filter(Boolean).map(norm));const svg=$('svg');svg.innerHTML='';for(const e of g.aristas){const p1=pos[e.a]||rand(e.a),p2=pos[e.b]||rand(e.b),key=norm(`${e.a}-${e.b}`);svg.appendChild(el('line',{x1:p1[0],y1:p1[1],x2:p2[0],y2:p2[1],class:`edge ${s.has(key)?'sel':''} ${r.has(key)?'reject':''} ${f.has(key)?'focus':''}`}));svg.appendChild(el('text',{x:(p1[0]+p2[0])/2,y:(p1[1]+p2[1])/2-5,class:'w'},e.w))}for(const v of g.adj.keys()){const p=pos[v]||rand(v);svg.appendChild(el('circle',{cx:p[0],cy:p[1],r:25,class:'node'}));svg.appendChild(el('text',{x:p[0],y:p[1],class:'label'},v))}}function rand(v){let n=[...v].reduce((a,c)=>a+c.charCodeAt(0),0);return[70+(n*47)%420,70+(n*83)%220]}function el(tag,attrs,text){const x=document.createElementNS('http://www.w3.org/2000/svg',tag);for(const[k,v]of Object.entries(attrs))x.setAttribute(k,v);if(text!==undefined)x.textContent=text;return x}$('algo').dispatchEvent(new Event('change'));ejecutar();
 </script></body></html>
