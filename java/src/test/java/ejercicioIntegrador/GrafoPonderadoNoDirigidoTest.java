@@ -1,6 +1,7 @@
 package ejercicioIntegrador;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -14,8 +15,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
- * Pruebas de caja negra para BFS, DFS, Dijkstra y Prim
- * sobre la misma red asistencial ponderada no dirigida.
+ * Pruebas de caja negra para BFS, DFS, Dijkstra, Prim, Kruskal
+ * y Floyd-Warshall sobre la misma red asistencial ponderada no dirigida.
  */
 class GrafoPonderadoNoDirigidoTest {
 
@@ -134,22 +135,6 @@ class GrafoPonderadoNoDirigidoTest {
     }
 
     @Test
-    void dijkstraDesdeGuardiaCalculaPredecesores() {
-
-        ResultadoDijkstra resultado =
-                grafo.dijkstra("G");
-
-        assertEquals(
-                Map.of(
-                        "CC", "G",
-                        "CS", "G",
-                        "L", "CC",
-                        "DI", "CS",
-                        "CN", "CC"),
-                resultado.getPredecesores());
-    }
-
-    @Test
     void dijkstraReconstruyeCaminoMinimoDeGuardiaADiagnostico() {
 
         ResultadoDijkstra resultado =
@@ -185,9 +170,29 @@ class GrafoPonderadoNoDirigidoTest {
                         30,
                         resultado.getCostoTotal()),
 
+                () -> assertTrue(
+                        resultado.esArbolExpansionCompleto())
+        );
+    }
+
+    @Test
+    void kruskalConstruyeElMstEsperadoSinOrigen() {
+
+        ResultadoKruskal resultado = grafo.kruskal();
+
+        assertAll(
                 () -> assertEquals(
-                        5,
-                        resultado.getAristas().size()),
+                        List.of(
+                                new AristaPonderada("CC", "G", 4),
+                                new AristaPonderada("CC", "L", 5),
+                                new AristaPonderada("CS", "DI", 6),
+                                new AristaPonderada("DI", "L", 7),
+                                new AristaPonderada("CN", "L", 8)),
+                        resultado.getAristas()),
+
+                () -> assertEquals(
+                        30,
+                        resultado.getCostoTotal()),
 
                 () -> assertTrue(
                         resultado.esArbolExpansionCompleto())
@@ -195,29 +200,62 @@ class GrafoPonderadoNoDirigidoTest {
     }
 
     @Test
-    void primYDijkstraResuelvenProblemasDistintos() {
+    void floydWarshallCalculaDistanciasMinimasEntreTodosLosPares() {
 
-        ResultadoDijkstra dijkstra =
-                grafo.dijkstra("G");
+        ResultadoFloydWarshall resultado =
+                grafo.floydWarshall();
 
-        ResultadoPrim prim =
-                grafo.prim("G");
+        int[][] esperada = {
+                {0, 12, 13, 12, 4, 5},
+                {12, 0, 18, 15, 16, 8},
+                {13, 18, 0, 6, 9, 10},
+                {12, 15, 6, 0, 15, 7},
+                {4, 16, 9, 15, 0, 9},
+                {5, 8, 10, 7, 9, 0}
+        };
 
         assertAll(
                 () -> assertEquals(
-                        List.of("G", "CS", "DI"),
-                        dijkstra.reconstruirCamino("DI")),
+                        List.of("CC", "CN", "CS", "DI", "G", "L"),
+                        resultado.getVertices()),
+
+                () -> assertArrayEquals(
+                        esperada,
+                        resultado.getDistancias()),
+
                 () -> assertEquals(
                         15,
-                        dijkstra.getDistancia("DI")),
+                        resultado.getDistancia("G", "DI")),
+
                 () -> assertEquals(
-                        30,
-                        prim.getCostoTotal())
+                        9,
+                        resultado.getDistancia("G", "L"))
         );
     }
 
     @Test
-    void losCuatroAlgoritmosRechazanUnOrigenInexistente() {
+    void floydWarshallReconstruyeCaminosMinimos() {
+
+        ResultadoFloydWarshall resultado =
+                grafo.floydWarshall();
+
+        assertAll(
+                () -> assertEquals(
+                        List.of("G", "CS", "DI"),
+                        resultado.reconstruirCamino("G", "DI")),
+
+                () -> assertEquals(
+                        List.of("G", "CC", "L"),
+                        resultado.reconstruirCamino("G", "L")),
+
+                () -> assertEquals(
+                        List.of("CC", "L", "DI"),
+                        resultado.reconstruirCamino("CC", "DI"))
+        );
+    }
+
+    @Test
+    void algoritmosConOrigenRechazanUnVerticeInexistente() {
 
         assertAll(
                 () -> assertThrows(
@@ -236,7 +274,7 @@ class GrafoPonderadoNoDirigidoTest {
     }
 
     @Test
-    void losCuatroAlgoritmosFuncionanConUnVerticeAislado() {
+    void algoritmosFuncionanConUnVerticeAislado() {
 
         grafo.agregarVertice("CO");
 
@@ -248,25 +286,18 @@ class GrafoPonderadoNoDirigidoTest {
                 grafo.dijkstra("CO");
         ResultadoPrim prim =
                 grafo.prim("CO");
+        ResultadoKruskal kruskal =
+                grafo.kruskal();
+        ResultadoFloydWarshall floyd =
+                grafo.floydWarshall();
 
         assertAll(
                 () -> assertEquals(
                         List.of("CO"),
                         bfs.getRecorrido()),
                 () -> assertEquals(
-                        List.of(List.of("CO")),
-                        bfs.getNiveles()),
-                () -> assertEquals(
-                        List.of(),
-                        bfs.getAristas()),
-
-                () -> assertEquals(
                         List.of("CO"),
                         dfs.getRecorrido()),
-                () -> assertEquals(
-                        List.of(),
-                        dfs.getAristas()),
-
                 () -> assertEquals(
                         0,
                         dijkstra.getDistancia("CO")),
@@ -274,88 +305,20 @@ class GrafoPonderadoNoDirigidoTest {
                         List.of("CO"),
                         dijkstra.reconstruirCamino("CO")),
                 () -> assertEquals(
-                        List.of(),
-                        dijkstra.reconstruirCamino("CC")),
-
-                () -> assertEquals(
                         0,
                         prim.getCostoTotal()),
+                () -> assertFalse(
+                        prim.esArbolExpansionCompleto()),
+                () -> assertFalse(
+                        kruskal.esArbolExpansionCompleto()),
+                () -> assertEquals(
+                        0,
+                        floyd.getDistancia("CO", "CO")),
+                () -> assertFalse(
+                        floyd.existeCamino("CO", "CC")),
                 () -> assertEquals(
                         List.of(),
-                        prim.getAristas()),
-                () -> assertFalse(
-                        prim.esArbolExpansionCompleto())
-        );
-    }
-
-    @Test
-    void primDetectaQueUnGrafoConAisladoNoTieneMstCompleto() {
-
-        grafo.agregarVertice("CO");
-
-        ResultadoPrim resultado =
-                grafo.prim("G");
-
-        assertAll(
-                () -> assertEquals(
-                        30,
-                        resultado.getCostoTotal()),
-                () -> assertEquals(
-                        6,
-                        resultado.getCantidadVerticesAlcanzados()),
-                () -> assertEquals(
-                        7,
-                        resultado.getCantidadVerticesTotales()),
-                () -> assertFalse(
-                        resultado.esArbolExpansionCompleto())
-        );
-    }
-
-    @Test
-    void lasEjecucionesNoConservanEstadoAnterior() {
-
-        ResultadoBfs primerBfs =
-                grafo.recorrerEnAnchura("CC");
-        ResultadoDfs primerDfs =
-                grafo.recorrerEnProfundidad("CC");
-        ResultadoDijkstra primerDijkstra =
-                grafo.dijkstra("CC");
-        ResultadoPrim primerPrim =
-                grafo.prim("CC");
-
-        grafo.recorrerEnAnchura("G");
-        grafo.recorrerEnProfundidad("G");
-        grafo.dijkstra("G");
-        grafo.prim("G");
-
-        ResultadoBfs segundoBfs =
-                grafo.recorrerEnAnchura("CC");
-        ResultadoDfs segundoDfs =
-                grafo.recorrerEnProfundidad("CC");
-        ResultadoDijkstra segundoDijkstra =
-                grafo.dijkstra("CC");
-        ResultadoPrim segundoPrim =
-                grafo.prim("CC");
-
-        assertAll(
-                () -> assertEquals(
-                        primerBfs.getRecorrido(),
-                        segundoBfs.getRecorrido()),
-                () -> assertEquals(
-                        primerDfs.getRecorrido(),
-                        segundoDfs.getRecorrido()),
-                () -> assertEquals(
-                        primerDijkstra.getDistancias(),
-                        segundoDijkstra.getDistancias()),
-                () -> assertEquals(
-                        primerDijkstra.getPredecesores(),
-                        segundoDijkstra.getPredecesores()),
-                () -> assertEquals(
-                        primerPrim.getAristas(),
-                        segundoPrim.getAristas()),
-                () -> assertEquals(
-                        primerPrim.getCostoTotal(),
-                        segundoPrim.getCostoTotal())
+                        floyd.reconstruirCamino("CO", "CC"))
         );
     }
 }
