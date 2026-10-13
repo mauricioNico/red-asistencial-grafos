@@ -8,13 +8,16 @@ import java.util.Scanner;
 
 /**
  * Aplicación de consola para construir una red asistencial ponderada
- * y comparar BFS, DFS, Dijkstra, Prim y Kruskal sobre el mismo grafo.
+ * y comparar BFS, DFS, Dijkstra, Prim, Kruskal y Floyd-Warshall.
  */
 public class App {
 
+    private static final int INFINITO = Integer.MAX_VALUE;
+
     public static void main(String[] args) {
         try (Scanner teclado = new Scanner(System.in)) {
-            GrafoPonderadoNoDirigido grafo = new GrafoPonderadoNoDirigido();
+            GrafoPonderadoNoDirigido grafo =
+                    new GrafoPonderadoNoDirigido();
 
             System.out.println("=== RED ASISTENCIAL ===");
 
@@ -38,12 +41,13 @@ public class App {
                 mostrarDijkstra(grafo, origen, destino);
                 mostrarPrim(grafo, origen);
                 mostrarKruskal(grafo);
+                mostrarFloydWarshall(grafo, origen, destino);
 
                 System.out.println(
                         "\nResumen conceptual: BFS/DFS recorren; "
                         + "Dijkstra minimiza un camino desde un origen; "
-                        + "Prim minimiza una red desde un vértice inicial; "
-                        + "Kruskal minimiza la red sin depender de un vértice.");
+                        + "Floyd-Warshall calcula caminos mínimos entre todos los pares; "
+                        + "Prim y Kruskal minimizan el costo de conectar toda la red.");
 
                 continuar = leerSiNo(
                         teclado,
@@ -175,10 +179,6 @@ public class App {
         System.out.println("\n=== DFS RECURSIVO DESDE " + origen + " ===");
         System.out.println("Recorrido: " + dfs.getRecorrido());
         System.out.println("Aristas: " + dfs.getAristas());
-
-        System.out.println(
-                "\nBFS y DFS recorren la red, "
-                + "pero no utilizan los pesos.");
     }
 
     private static void mostrarDijkstra(
@@ -194,22 +194,10 @@ public class App {
         for (Map.Entry<String, Integer> entrada
                 : resultado.getDistancias().entrySet()) {
 
-            String texto = entrada.getValue() == Integer.MAX_VALUE
-                    ? "∞"
-                    : String.valueOf(entrada.getValue());
-
-            System.out.println(entrada.getKey() + " = " + texto);
-        }
-
-        System.out.println("\nPredecesores:");
-        if (resultado.getPredecesores().isEmpty()) {
-            System.out.println("No existen predecesores.");
-        } else {
-            for (Map.Entry<String, String> entrada
-                    : resultado.getPredecesores().entrySet()) {
-                System.out.println(
-                        entrada.getKey() + " <- " + entrada.getValue());
-            }
+            System.out.println(
+                    entrada.getKey()
+                    + " = "
+                    + formatearDistancia(entrada.getValue()));
         }
 
         List<String> camino = resultado.reconstruirCamino(destino);
@@ -238,25 +226,10 @@ public class App {
 
         ResultadoPrim resultado = grafo.prim(origen);
 
-        System.out.println(
-                "\n=== PRIM DESDE " + origen + " ===");
+        System.out.println("\n=== PRIM DESDE " + origen + " ===");
+        mostrarMst(resultado.getAristas(), resultado.getCostoTotal());
 
-        System.out.println(
-                "Aristas del árbol de expansión mínima:");
-
-        mostrarAristasPonderadas(resultado.getAristas());
-
-        System.out.println(
-                "Costo total: "
-                + resultado.getCostoTotal()
-                + " minutos");
-
-        if (resultado.esArbolExpansionCompleto()) {
-            System.out.println(
-                    "MST completo: "
-                    + resultado.getAristas().size()
-                    + " = V - 1 aristas.");
-        } else {
+        if (!resultado.esArbolExpansionCompleto()) {
             System.out.println(
                     "La red está desconectada: Prim alcanzó "
                     + resultado.getCantidadVerticesAlcanzados()
@@ -275,25 +248,58 @@ public class App {
         System.out.println(
                 "Kruskal no solicita origen: ordena todas las aristas "
                 + "y evita ciclos con Union-Find.");
-        System.out.println(
-                "Aristas del árbol de expansión mínima:");
+        mostrarMst(resultado.getAristas(), resultado.getCostoTotal());
 
-        mostrarAristasPonderadas(resultado.getAristas());
-
-        System.out.println(
-                "Costo total: "
-                + resultado.getCostoTotal()
-                + " minutos");
-
-        if (resultado.esArbolExpansionCompleto()) {
-            System.out.println(
-                    "MST completo: "
-                    + resultado.getAristas().size()
-                    + " = V - 1 aristas.");
-        } else {
+        if (!resultado.esArbolExpansionCompleto()) {
             System.out.println(
                     "La red está desconectada: Kruskal devolvió un bosque "
                     + "de expansión mínima.");
+        }
+    }
+
+    private static void mostrarFloydWarshall(
+            GrafoPonderadoNoDirigido grafo,
+            String origen,
+            String destino) {
+
+        ResultadoFloydWarshall resultado = grafo.floydWarshall();
+
+        System.out.println("\n=== FLOYD-WARSHALL ===");
+        System.out.println(
+                "Matriz de distancias mínimas entre todos los pares:");
+        System.out.println(resultado.formatearMatriz());
+
+        List<String> camino = resultado.reconstruirCamino(origen, destino);
+        System.out.println(
+                "Consulta puntual "
+                + origen + " -> " + destino + ":");
+
+        if (camino.isEmpty()) {
+            System.out.println("No existe camino.");
+        } else {
+            System.out.println("Camino: " + String.join(" -> ", camino));
+            System.out.println(
+                    "Costo mínimo: "
+                    + resultado.getDistancia(origen, destino)
+                    + " minutos");
+        }
+    }
+
+    private static void mostrarMst(
+            List<AristaPonderada> aristas,
+            int costoTotal) {
+
+        System.out.println("Aristas del árbol de expansión mínima:");
+        mostrarAristasPonderadas(aristas);
+        System.out.println(
+                "Costo total: "
+                + costoTotal
+                + " minutos");
+
+        if (!aristas.isEmpty()) {
+            System.out.println(
+                    "Cantidad de aristas seleccionadas: "
+                    + aristas.size());
         }
     }
 
@@ -307,10 +313,16 @@ public class App {
 
         int numero = 1;
         for (AristaPonderada arista : aristas) {
-            System.out.println(
-                    numero + ". " + arista);
+            System.out.println(numero + ". " + arista);
             numero++;
         }
+    }
+
+    private static String formatearDistancia(int distancia) {
+        if (distancia == INFINITO) {
+            return "∞";
+        }
+        return String.valueOf(distancia);
     }
 
     private static String leerVerticeExistente(
@@ -325,8 +337,7 @@ public class App {
                 return vertice;
             }
 
-            System.out.println(
-                    "El vértice no pertenece a la red.");
+            System.out.println("El vértice no pertenece a la red.");
         }
     }
 
@@ -342,8 +353,7 @@ public class App {
                 return texto;
             }
 
-            System.out.println(
-                    "El valor no puede estar vacío.");
+            System.out.println("El valor no puede estar vacío.");
         }
     }
 
@@ -376,8 +386,7 @@ public class App {
             try {
                 return Integer.parseInt(entrada);
             } catch (NumberFormatException excepcion) {
-                System.out.println(
-                        "Debe ingresar un número entero.");
+                System.out.println("Debe ingresar un número entero.");
             }
         }
     }
