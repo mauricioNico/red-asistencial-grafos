@@ -19,7 +19,23 @@ const pos={CC:[250,55],CN:[95,145],G:[420,145],L:[250,165],DI:[135,265],CS:[385,
 const $=id=>document.getElementById(id),INF=Infinity;
 const CODIGO={bfs:['Queue<String> cola = new ArrayDeque<>();','Set<String> visitados = new LinkedHashSet<>();','cola.add(origen); visitados.add(origen);','while (!cola.isEmpty()) {','    String actual = cola.remove();','    for (String vecino : obtenerVecinos(actual)) {','        if (!visitados.contains(vecino)) {','            visitados.add(vecino);','            cola.add(vecino);','        }','    }','}'],dfs:['private void dfs(String actual) {','    visitados.add(actual);','    for (String vecino : obtenerVecinos(actual)) {','        if (!visitados.contains(vecino)) {','            dfs(vecino);','        }','    }','}'],dijkstra:['distancias.put(origen, 0);','while (quedenVerticesNoVisitados) {','    actual = menorNoVisitado(distancias);','    visitados.add(actual);','    for (vecino : obtenerVecinos(actual)) {','        alternativa = dist[actual] + peso(actual, vecino);','        if (alternativa < dist[vecino]) {','            dist[vecino] = alternativa;','            predecesor[vecino] = actual;','        }','    }','}'],prim:['incorporados.add(origen);','while (incorporados.size() < V) {','    menor = buscarMenorAristaSalida(incorporados);','    if (menor == null) break;','    aristas.add(menor);','    costoTotal += menor.getPeso();','    incorporados.add(menor.getDestino());','}'],kruskal:['aristas = obtenerTodasLasAristas();','ordenarPorPeso(aristas);','UnionFind conjuntos = new UnionFind(vertices);','for (arista : aristas) {','    raizA = find(arista.origen);','    raizB = find(arista.destino);','    if (raizA != raizB) {','        aceptar(arista);','        union(raizA, raizB);','    } else {','        rechazar por ciclo;','    }','}'],floyd:['inicializar dist[][] y siguiente[][];','for (int k = 0; k < n; k++) {','    for (int i = 0; i < n; i++) {','        for (int j = 0; j < n; j++) {','            if (dist[i][k] != INF && dist[k][j] != INF) {','                alternativa = dist[i][k] + dist[k][j];','                if (alternativa < dist[i][j]) {','                    dist[i][j] = alternativa;','                    siguiente[i][j] = siguiente[i][k];','                }','            }','        }','    }','}']};
 let resultadoActual=null,pasoActual=0;function crearPaso(titulo,texto,estado,linea,sel=[],rej=[],focus=[]){return{titulo,texto,estado,linea,sel:[...sel],rej:[...rej],focus:[...focus]}}function mostrarCodigo(a,linea=0){const caja=$('codeBox');caja.innerHTML='';$('codeTitle').textContent='Código de ejemplo · '+a.toUpperCase();(CODIGO[a]||[]).forEach((txt,i)=>{const li=document.createElement('li');li.textContent=txt;if(i+1===linea)li.className='active';caja.appendChild(li)})}function mostrarPaso(){if(!resultadoActual?.steps?.length)return;pasoActual=Math.max(0,Math.min(pasoActual,resultadoActual.steps.length-1));const p=resultadoActual.steps[pasoActual];$('stepCounter').textContent='Paso '+(pasoActual+1)+' / '+resultadoActual.steps.length;$('stepTitle').textContent=p.titulo;$('stepText').textContent=p.texto;$('stepState').textContent=p.estado;mostrarCodigo($('algo').value,p.linea);dibujar(resultadoActual.g,p.sel||[],p.rej||[],p.focus||[]);$('stepPrev').disabled=pasoActual===0;$('stepReset').disabled=pasoActual===0;$('stepNext').disabled=pasoActual===resultadoActual.steps.length-1;$('stepEnd').disabled=pasoActual===resultadoActual.steps.length-1}
-$('edges').value=ejemplos.red;$('example').onchange=()=>{const e=$('example').value;$('edges').value=ejemplos[e];if(e==='floyd'){$('algo').value='floyd';$('origin').value='A';$('dest').value='D'}ejecutar()};$('load').onclick=e=>{e.preventDefault();$('example').dispatchEvent(new Event('change'))};$('algo').onchange=()=>{const a=$('algo').value;$('originBox').style.display=a==='kruskal'?'none':'grid';$('destBox').style.display=(a==='dijkstra'||a==='floyd')?'grid':'none';ejecutar()};$('run').onclick=ejecutar;$('stepPrev').onclick=()=>{pasoActual--;mostrarPaso()};$('stepNext').onclick=()=>{pasoActual++;mostrarPaso()};$('stepReset').onclick=()=>{pasoActual=0;mostrarPaso()};$('stepEnd').onclick=()=>{if(resultadoActual){pasoActual=resultadoActual.steps.length-1;mostrarPaso()}};
+$('edges').value=ejemplos.red;
+const consultasEjemplo={
+  red:{origen:'G',destino:'DI'},
+  ciclo:{origen:'G',destino:'DI'},
+  floyd:{origen:'A',destino:'D'}
+};
+$('example').onchange=()=>{
+  const e=$('example').value;
+  $('edges').value=ejemplos[e];
+  const consulta=consultasEjemplo[e];
+  if(consulta){
+    $('origin').value=consulta.origen;
+    $('dest').value=consulta.destino;
+  }
+  if(e==='floyd') $('algo').value='floyd';
+  ejecutar();
+};$('load').onclick=e=>{e.preventDefault();$('example').dispatchEvent(new Event('change'))};$('algo').onchange=()=>{const a=$('algo').value;$('originBox').style.display=a==='kruskal'?'none':'grid';$('destBox').style.display=(a==='dijkstra'||a==='floyd')?'grid':'none';ejecutar()};$('run').onclick=ejecutar;$('stepPrev').onclick=()=>{pasoActual--;mostrarPaso()};$('stepNext').onclick=()=>{pasoActual++;mostrarPaso()};$('stepReset').onclick=()=>{pasoActual=0;mostrarPaso()};$('stepEnd').onclick=()=>{if(resultadoActual){pasoActual=resultadoActual.steps.length-1;mostrarPaso()}};
 function leerGrafo(){const adj=new Map(),aristas=[];const add=v=>{if(!adj.has(v))adj.set(v,new Map())};for(const[i,linea]of $('edges').value.split(/\n+/).entries()){const t=linea.trim();if(!t)continue;const p=t.split(/\s+/);if(p.length!==3)throw new Error(`Línea ${i+1}: usar origen destino peso`);const[a,b]=p,w=Number(p[2]);if(!Number.isFinite(w)||w<=0)throw new Error(`Línea ${i+1}: peso inválido`);add(a);add(b);adj.get(a).set(b,w);adj.get(b).set(a,w);aristas.push({a,b,w})}return{adj,aristas}}function vertices(g){return[...g.adj.keys()].sort((a,b)=>a.localeCompare(b))}function vecinos(g,v){return[...(g.adj.get(v)||new Map()).entries()].sort((a,b)=>a[0].localeCompare(b[0]))}function validar(g,v){if(!g.adj.has(v))throw new Error(`El vértice ${v} no existe`)}
 function bfs(g,o){validar(g,o);const q=[o],vis=new Set([o]),rec=[],nivel=new Map([[o,0]]),niv=[[o]],sel=[],steps=[crearPaso('Inicialización','BFS marca el origen y lo coloca en la cola FIFO.','cola = ['+q+']\nvisitados = {'+[...vis]+'}',3,sel)];while(q.length){const a=q.shift();rec.push(a);steps.push(crearPaso('Extraer '+a,'Se procesa el primer elemento de la cola.',`actual = ${a}\ncola = [${q}]\nrecorrido = [${rec}]`,5,sel));for(const[b]of vecinos(g,a)){steps.push(crearPaso('Examinar '+a+' → '+b,vis.has(b)?'Ya estaba visitado.':'No estaba visitado: se descubre.',`visitados = {${[...vis]}}`,7,sel,[],[`${a}-${b}`]));if(!vis.has(b)){vis.add(b);q.push(b);sel.push(a+'-'+b);const n=nivel.get(a)+1;nivel.set(b,n);(niv[n]??=[]).push(b);steps.push(crearPaso('Descubrir '+b,'Se marca, entra a la cola y queda en el nivel '+n+'.',`cola = [${q}]\nvisitados = {${[...vis]}}\nnivel(${b}) = ${n}`,9,sel))}}}steps.push(crearPaso('BFS finalizado','La cola está vacía.','recorrido = ['+rec+']\nniveles = '+niv.map((x,i)=>i+': ['+x+']').join(' | '),12,sel));return{txt:'BFS desde '+o+'\nRecorrido: '+rec.join(' → ')+'\nNiveles:\n'+niv.map((x,i)=>'  Nivel '+i+': '+x.join(', ')).join('\n'),sel,steps}}
 function dfs(g,o){validar(g,o);const vis=new Set(),rec=[],sel=[],steps=[];function go(a,prof){vis.add(a);rec.push(a);steps.push(crearPaso('Entrar a DFS('+a+')','DFS avanza por una rama antes de regresar.',`profundidad = ${prof}\nvisitados = {${[...vis]}}\nrecorrido = [${rec}]`,2,sel));for(const[b]of vecinos(g,a)){steps.push(crearPaso('Examinar '+a+' → '+b,vis.has(b)?'Ya visitado.':'Llamada recursiva.',`actual = ${a}\nvecino = ${b}`,4,sel,[],[`${a}-${b}`]));if(!vis.has(b)){sel.push(a+'-'+b);go(b,prof+1)}}steps.push(crearPaso('Retornar desde '+a,'No quedan vecinos nuevos para este vértice.',`retorno desde DFS(${a})`,7,sel))}go(o,0);return{txt:'DFS desde '+o+'\nRecorrido: '+rec.join(' → ')+'\nAristas: '+sel.join(', '),sel,steps}}
@@ -101,15 +117,16 @@ function floyd(g){
 
   const origen=$('origin').value.trim().toUpperCase();
   const destino=$('dest').value.trim().toUpperCase();
+  validar(g,origen);
+  validar(g,destino);
+
   let camino=[];
   let caminoEdges=[];
   let costo=INF;
 
-  if(idx.has(origen)&&idx.has(destino)){
-    camino=reconstruirFloyd(vs,next,idx.get(origen),idx.get(destino));
-    costo=dist[idx.get(origen)][idx.get(destino)];
-    for(let p=0;p<camino.length-1;p++) caminoEdges.push(camino[p]+'-'+camino[p+1]);
-  }
+  camino=reconstruirFloyd(vs,next,idx.get(origen),idx.get(destino));
+  costo=dist[idx.get(origen)][idx.get(destino)];
+  for(let p=0;p<camino.length-1;p++) caminoEdges.push(camino[p]+'-'+camino[p+1]);
 
   if(steps.length){
     const ult=steps[steps.length-1];
@@ -125,7 +142,7 @@ function floyd(g){
     'Matriz final de distancias:\n'+matrizTexto(vs,dist)+'\n'+
     'Matriz final siguiente:\n'+matrizSiguienteTexto(vs,next)+'\n'+
     'Consulta '+origen+' → '+destino+':\n'+
-    'Camino mínimo: '+(camino.length?camino.join(' → '):'sin camino')+'\n'+
+    'Camino mínimo: '+(camino.length?camino.join(' → '):'sin camino entre vértices válidos')+'\n'+
     'Costo: '+fmt(costo)+'\n\n'+
     'Actualizaciones reales:\n'+(updates.join('\n')||'ninguna');
 
