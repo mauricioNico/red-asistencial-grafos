@@ -146,31 +146,21 @@ public class GrafoPonderadoNoDirigido {
                 if (!visitados.contains(vecino)) {
                     visitados.add(vecino);
                     cola.add(vecino);
+                    aristas.add(new AristaRecorrido(actual, vecino));
 
-                    aristas.add(
-                            new AristaRecorrido(
-                                    actual, vecino));
+                    int nivelVecino = nivelPorVertice.get(actual) + 1;
+                    nivelPorVertice.put(vecino, nivelVecino);
 
-                    int nivelVecino =
-                            nivelPorVertice.get(actual) + 1;
-
-                    nivelPorVertice.put(
-                            vecino, nivelVecino);
-
-                    while (niveles.size()
-                            <= nivelVecino) {
-                        niveles.add(
-                                new ArrayList<>());
+                    while (niveles.size() <= nivelVecino) {
+                        niveles.add(new ArrayList<>());
                     }
 
-                    niveles.get(nivelVecino)
-                            .add(vecino);
+                    niveles.get(nivelVecino).add(vecino);
                 }
             }
         }
 
-        return new ResultadoBfs(
-                recorrido, niveles, aristas);
+        return new ResultadoBfs(recorrido, niveles, aristas);
     }
 
     // =========================================================
@@ -188,8 +178,7 @@ public class GrafoPonderadoNoDirigido {
 
         dfs(origen, visitados, recorrido, aristas);
 
-        return new ResultadoDfs(
-                recorrido, aristas);
+        return new ResultadoDfs(recorrido, aristas);
     }
 
     private void dfs(
@@ -201,19 +190,10 @@ public class GrafoPonderadoNoDirigido {
         visitados.add(actual);
         recorrido.add(actual);
 
-        for (String vecino
-                : adyacencias.get(actual).keySet()) {
-
+        for (String vecino : adyacencias.get(actual).keySet()) {
             if (!visitados.contains(vecino)) {
-                aristas.add(
-                        new AristaRecorrido(
-                                actual, vecino));
-
-                dfs(
-                        vecino,
-                        visitados,
-                        recorrido,
-                        aristas);
+                aristas.add(new AristaRecorrido(actual, vecino));
+                dfs(vecino, visitados, recorrido, aristas);
             }
         }
     }
@@ -222,17 +202,13 @@ public class GrafoPonderadoNoDirigido {
     // DIJKSTRA
     // =========================================================
 
-    public ResultadoDijkstra dijkstra(
-            String origen) {
+    public ResultadoDijkstra dijkstra(String origen) {
 
         validarExistencia(origen);
 
-        Map<String, Integer> distancias =
-                new LinkedHashMap<>();
-        Map<String, String> predecesores =
-                new HashMap<>();
-        Set<String> visitados =
-                new LinkedHashSet<>();
+        Map<String, Integer> distancias = new LinkedHashMap<>();
+        Map<String, String> predecesores = new HashMap<>();
+        Set<String> visitados = new LinkedHashSet<>();
 
         for (String vertice : obtenerVertices()) {
             distancias.put(vertice, INFINITO);
@@ -240,13 +216,8 @@ public class GrafoPonderadoNoDirigido {
 
         distancias.put(origen, 0);
 
-        while (visitados.size()
-                < cantidadVertices()) {
-
-            String actual =
-                    menorNoVisitado(
-                            distancias,
-                            visitados);
+        while (visitados.size() < cantidadVertices()) {
+            String actual = menorNoVisitado(distancias, visitados);
 
             if (actual == null) {
                 break;
@@ -254,23 +225,17 @@ public class GrafoPonderadoNoDirigido {
 
             visitados.add(actual);
 
-            for (String vecino
-                    : obtenerVecinos(actual)) {
+            for (String vecino : obtenerVecinos(actual)) {
+                if (!visitados.contains(vecino)
+                        && distancias.get(actual) != INFINITO) {
 
-                if (!visitados.contains(vecino)) {
                     int alternativa =
                             distancias.get(actual)
-                            + obtenerPeso(
-                                    actual, vecino);
+                            + obtenerPeso(actual, vecino);
 
-                    if (alternativa
-                            < distancias.get(vecino)) {
-
-                        distancias.put(
-                                vecino, alternativa);
-
-                        predecesores.put(
-                                vecino, actual);
+                    if (alternativa < distancias.get(vecino)) {
+                        distancias.put(vecino, alternativa);
+                        predecesores.put(vecino, actual);
                     }
                 }
             }
@@ -310,32 +275,18 @@ public class GrafoPonderadoNoDirigido {
     // PRIM
     // =========================================================
 
-    /**
-     * Construye un árbol de expansión mínima desde un vértice.
-     *
-     * Si el grafo está desconectado, devuelve el árbol mínimo de la
-     * componente alcanzable y ResultadoPrim informa que no es completo.
-     */
     public ResultadoPrim prim(String origen) {
 
         validarExistencia(origen);
 
-        Set<String> incorporados =
-                new LinkedHashSet<>();
-
-        List<AristaPonderada> aristas =
-                new ArrayList<>();
-
+        Set<String> incorporados = new LinkedHashSet<>();
+        List<AristaPonderada> aristas = new ArrayList<>();
         int costoTotal = 0;
 
         incorporados.add(origen);
 
-        while (incorporados.size()
-                < cantidadVertices()) {
-
-            AristaPonderada menor =
-                    buscarMenorAristaSalida(
-                            incorporados);
+        while (incorporados.size() < cantidadVertices()) {
+            AristaPonderada menor = buscarMenorAristaSalida(incorporados);
 
             if (menor == null) {
                 break;
@@ -343,8 +294,7 @@ public class GrafoPonderadoNoDirigido {
 
             aristas.add(menor);
             costoTotal += menor.getPeso();
-            incorporados.add(
-                    menor.getDestino());
+            incorporados.add(menor.getDestino());
         }
 
         return new ResultadoPrim(
@@ -361,9 +311,7 @@ public class GrafoPonderadoNoDirigido {
         AristaPonderada mejor = null;
 
         for (String origen : incorporados) {
-            for (String destino
-                    : obtenerVecinos(origen)) {
-
+            for (String destino : obtenerVecinos(origen)) {
                 if (incorporados.contains(destino)) {
                     continue;
                 }
@@ -372,12 +320,9 @@ public class GrafoPonderadoNoDirigido {
                         new AristaPonderada(
                                 origen,
                                 destino,
-                                obtenerPeso(
-                                        origen,
-                                        destino));
+                                obtenerPeso(origen, destino));
 
-                if (compararAristas(
-                        candidata, mejor) < 0) {
+                if (compararAristas(candidata, mejor) < 0) {
                     mejor = candidata;
                 }
             }
@@ -390,25 +335,13 @@ public class GrafoPonderadoNoDirigido {
     // KRUSKAL
     // =========================================================
 
-    /**
-     * Construye un árbol de expansión mínima sin depender de un vértice inicial.
-     *
-     * Kruskal ordena todas las aristas por peso y agrega cada una sólo si no
-     * genera un ciclo. Para detectar ciclos utiliza UnionFind.
-     */
     public ResultadoKruskal kruskal() {
 
-        List<AristaPonderada> candidatas =
-                obtenerTodasLasAristas();
-
+        List<AristaPonderada> candidatas = obtenerTodasLasAristas();
         candidatas.sort(this::compararAristas);
 
-        UnionFind unionFind =
-                new UnionFind(obtenerVertices());
-
-        List<AristaPonderada> seleccionadas =
-                new ArrayList<>();
-
+        UnionFind unionFind = new UnionFind(obtenerVertices());
+        List<AristaPonderada> seleccionadas = new ArrayList<>();
         int costoTotal = 0;
 
         for (AristaPonderada arista : candidatas) {
@@ -422,8 +355,7 @@ public class GrafoPonderadoNoDirigido {
                 costoTotal += arista.getPeso();
             }
 
-            if (seleccionadas.size()
-                    == cantidadVertices() - 1) {
+            if (seleccionadas.size() == cantidadVertices() - 1) {
                 break;
             }
         }
@@ -432,6 +364,70 @@ public class GrafoPonderadoNoDirigido {
                 seleccionadas,
                 costoTotal,
                 cantidadVertices());
+    }
+
+    // =========================================================
+    // FLOYD-WARSHALL
+    // =========================================================
+
+    /**
+     * Calcula las distancias mínimas entre todos los pares de vértices.
+     *
+     * A diferencia de Dijkstra, no parte de un único origen: devuelve una
+     * matriz completa de costos mínimos. La matriz de siguientes permite
+     * reconstruir el camino mínimo entre cualquier par alcanzable.
+     */
+    public ResultadoFloydWarshall floydWarshall() {
+
+        List<String> vertices = new ArrayList<>(obtenerVertices());
+        int cantidad = vertices.size();
+        int[][] distancias = new int[cantidad][cantidad];
+        int[][] siguientes = new int[cantidad][cantidad];
+
+        for (int i = 0; i < cantidad; i++) {
+            for (int j = 0; j < cantidad; j++) {
+                if (i == j) {
+                    distancias[i][j] = 0;
+                    siguientes[i][j] = j;
+                } else {
+                    String origen = vertices.get(i);
+                    String destino = vertices.get(j);
+
+                    if (adyacencias.get(origen).containsKey(destino)) {
+                        distancias[i][j] = obtenerPeso(origen, destino);
+                        siguientes[i][j] = j;
+                    } else {
+                        distancias[i][j] = INFINITO;
+                        siguientes[i][j] = -1;
+                    }
+                }
+            }
+        }
+
+        for (int k = 0; k < cantidad; k++) {
+            for (int i = 0; i < cantidad; i++) {
+                for (int j = 0; j < cantidad; j++) {
+                    if (distancias[i][k] == INFINITO
+                            || distancias[k][j] == INFINITO) {
+                        continue;
+                    }
+
+                    int alternativa =
+                            distancias[i][k]
+                            + distancias[k][j];
+
+                    if (alternativa < distancias[i][j]) {
+                        distancias[i][j] = alternativa;
+                        siguientes[i][j] = siguientes[i][k];
+                    }
+                }
+            }
+        }
+
+        return new ResultadoFloydWarshall(
+                vertices,
+                distancias,
+                siguientes);
     }
 
     private List<AristaPonderada> obtenerTodasLasAristas() {
@@ -484,19 +480,15 @@ public class GrafoPonderadoNoDirigido {
     // VALIDACIONES
     // =========================================================
 
-    private void validarNombreVertice(
-            String vertice) {
+    private void validarNombreVertice(String vertice) {
 
-        if (vertice == null
-                || vertice.isBlank()) {
-
+        if (vertice == null || vertice.isBlank()) {
             throw new IllegalArgumentException(
                     "El vértice no puede ser nulo o vacío.");
         }
     }
 
-    private void validarExistencia(
-            String vertice) {
+    private void validarExistencia(String vertice) {
 
         validarNombreVertice(vertice);
 
